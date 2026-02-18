@@ -4,17 +4,27 @@ import { useNavigate } from "react-router-dom";
 import { useEffect } from "react";
 import "./styles.css";
 
-async function Home() {
+function Home() {
   const navigate = useNavigate();
   const user = auth.currentUser;
 
-  const data = await getUserData(user.uid);
+  const [data, setData] = useState(null);
 
   useEffect(() => {
-    if (!user) navigate("/");
+    if (!user) {
+      navigate("/");
+      return;
+    }
+
+    async function fetchUser() {
+      const userData = await getUserData(user.uid);
+      setData(userData);
+    }
+
+    fetchUser();
   }, [user, navigate]);
 
-  if (!user) return null;
+  if (!user || !data) return null;
 
   return (
     <div className="chat-container">
