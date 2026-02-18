@@ -2,33 +2,45 @@ import { auth } from "../../services/firebase";
 import { getUserData } from "../../services/userService";
 import { useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
+import { onAuthStateChanged } from "firebase/auth";
 import "./styles.css";
 
 function Home() {
   const navigate = useNavigate();
-  const user = auth.currentUser;
 
+  const [user, setUser] = useState(undefined);
   const [data, setData] = useState(null);
+  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    if (!user) {
-      navigate("/");
-      return;
-    }
+    const unsubscribe = onAuthStateChanged(auth, async (currentUser) => {
+      if (!currentUser) {
+        setUser(null);
+        navigate("/");
+        return;
+      }
 
-    async function fetchUser() {
-      const userData = await getUserData(user.uid);
+      setUser(currentUser);
+
+      const userData = await getUserData(currentUser.uid);
       setData(userData);
-    }
 
-    fetchUser();
-  }, [user, navigate]);
+    });
 
+    return () => unsubscribe();
+  }, [navigate]);
+
+  if (user === undefined) return null;
   if (!user || !data) return null;
+
+  if (isLoading) return (
+    <div className="loading-container">
+      <div className="spinner"></div>
+    </div>
+  );
 
   return (
     <div className="chat-container">
-      {/* Sidebar */}
       <div className="sidebar">
         <div className="sidebar-header">
           <h3>{data.name || data.email}</h3>
