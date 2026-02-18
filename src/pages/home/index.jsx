@@ -25,6 +25,7 @@ function Home() {
       const userData = await getUserData(currentUser.uid);
       setData(userData);
 
+      setIsLoading(false);
     });
 
     return () => unsubscribe();
