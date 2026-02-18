@@ -87,6 +87,7 @@ function SignUp() {
                             target="_blank"
                             rel="noopener noreferrer"
                             className="recoverPassword"
+                            onClick={()=> setRecoverPasswordMessage('')}
                         >
                             Enviamos um email. Clique aqui para abrir o Gmail.
                         </a>

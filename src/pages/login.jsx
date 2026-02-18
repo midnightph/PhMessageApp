@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import '../App.css'
-import { login, loginWithGoogle } from '../services/authService'
+import { login, loginWithGoogle, recoverPassword } from '../services/authService'
 import { useNavigate } from "react-router-dom";
 
 function Login() {
@@ -10,6 +10,7 @@ function Login() {
     const [loading, setLoading] = useState(false);
     const [googleLoading, setGoogleLoading] = useState(false);
     const [error, setError] = useState('');
+    const [recoverPasswordMessage, setRecoverPasswordMessage] = useState(false);
 
     return (
         <>
@@ -68,6 +69,25 @@ function Login() {
                             Entrar com Google</>)}
                     </button>
                     {error && <p className='error'>{error}</p>}
+                    {error === 'Email ou senha incorretos' && <h3 className='recoverPassword'
+                        onClick={async () => {
+                            const result = await recoverPassword(email)
+                            if (result.success) {
+                                setError('');
+                                setRecoverPasswordMessage(true)
+                            }
+                        }}>Recuperar senha</h3>}
+                    {recoverPasswordMessage && (
+                        <a
+                            href="https://mail.google.com"
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="recoverPassword"
+                            onClick={() => setRecoverPasswordMessage('')}
+                        >
+                            Enviamos um email. Clique aqui para abrir o Gmail.
+                        </a>
+                    )}
                     <div className='divider'></div>
 
                     <h2>Ainda não possui uma conta?</h2>
