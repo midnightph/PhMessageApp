@@ -1,8 +1,10 @@
 import { useState } from 'react'
 import '../App.css'
 import { login, loginWithGoogle } from '../services/authService'
+import { useNavigate } from "react-router-dom";
 
 function App() {
+    const navigate = useNavigate();
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [loading, setLoading] = useState(false);
@@ -36,9 +38,7 @@ function App() {
                                 alert(result.error);
                             }
 
-                            if (result.success) {
-                                alert('Login realizado com sucesso!');
-                            }
+                            navigate('/home');
                         }}
                     >
                         {loading ? <div className="spinner"></div> : "Entrar"}
@@ -55,14 +55,14 @@ function App() {
                                 return;
                             }
 
-                            console.log("Usuário logado:", result.user);
+                            navigate('/home');
                         }}
                     >
                         {googleLoading ? <div className="spinnerGoogle"></div> : (<><img
                             src="https://developers.google.com/identity/images/g-logo.png"
                             alt="Google"
                         />
-                        Entrar com Google</>) }
+                            Entrar com Google</>)}
                     </button>
                     <div className='divider'></div>
 

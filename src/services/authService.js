@@ -13,7 +13,7 @@ export async function login(email, password) {
   } catch (error) {
     return { error: error.message };
   }  
-  return { success: true };
+  return { success: true, user: auth.currentUser };
 }
 
 export async function loginWithGoogle() {
