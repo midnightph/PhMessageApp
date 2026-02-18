@@ -1,7 +1,7 @@
 import { auth } from "../../services/firebase";
 import { getUserData } from "../../services/userService";
 import { useNavigate } from "react-router-dom";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import "./styles.css";
 
 function Home() {
