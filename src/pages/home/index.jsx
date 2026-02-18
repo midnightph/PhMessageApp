@@ -1,11 +1,14 @@
 import { auth } from "../../services/firebase";
+import { getUserData } from "../../services/userService";
 import { useNavigate } from "react-router-dom";
 import { useEffect } from "react";
 import "./styles.css";
 
-function Home() {
+async function Home() {
   const navigate = useNavigate();
   const user = auth.currentUser;
+
+  const data = await getUserData(user.uid);
 
   useEffect(() => {
     if (!user) navigate("/");
@@ -18,7 +21,7 @@ function Home() {
       {/* Sidebar */}
       <div className="sidebar">
         <div className="sidebar-header">
-          <h3>{user.displayName || user.email}</h3>
+          <h3>{data.name || data.email}</h3>
         </div>
 
         <div className="chat-list">

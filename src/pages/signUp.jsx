@@ -5,6 +5,7 @@ import { useNavigate } from "react-router-dom";
 
 function SignUp() {
     const navigate = useNavigate();
+    let nome = '';
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [confirmPassword, setConfirmPassword] = useState('');
@@ -24,6 +25,7 @@ function SignUp() {
                     <h3 className='subtitle'>Para completar seu cadastro preencha as informações</h3>
 
                     <div className='inputs'>
+                        <input type="text" placeholder='Nome' onChange={(e) => nome(e.target.value)} value={nome} />
                         <input type="text" placeholder='Email' onChange={(e) => setEmail(e.target.value)} value={email} />
                         <input type="password" placeholder='Senha' onChange={(e) => setPassword(e.target.value)} value={password} />
                         <input type="password" placeholder='Confirme a senha' onChange={(e) => setConfirmPassword(e.target.value)} value={confirmPassword} />

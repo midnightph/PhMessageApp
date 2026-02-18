@@ -1,14 +1,15 @@
 import { signInWithEmailAndPassword } from "firebase/auth";
-import { auth } from "../services/firebase";
+import { auth, db } from "../services/firebase";
 import { signInWithPopup, GoogleAuthProvider, createUserWithEmailAndPassword } from "firebase/auth";
 import { sendPasswordResetEmail } from "firebase/auth";
+import { doc, getDoc, setDoc } from "firebase/firestore";
 const provider = new GoogleAuthProvider();
 
 export async function login(email, password) {
   if (!email || !password) {
     return { error: "Email e senha são obrigatórios" };
   }
-
+  await ensureUserDocument(auth.currentUser);
   try {
     await signInWithEmailAndPassword(auth, email, password);
   } catch (error) {
@@ -31,7 +32,7 @@ export async function login(email, password) {
 export async function loginWithGoogle() {
   try {
     const result = await signInWithPopup(auth, provider);
-
+    await ensureUserDocument(result.user);
     return {
       success: true,
       user: result.user
@@ -65,7 +66,7 @@ export async function loginWithGoogle() {
   }
 }
 
-export async function signUp(email, password, confirmPassword) {
+export async function signUp(email, password, confirmPassword, name) {
   if (password !== confirmPassword) {
     return { error: "As senhas devem ser iguais" };
   }
@@ -74,7 +75,7 @@ export async function signUp(email, password, confirmPassword) {
   }
   try {
     const result = await createUserWithEmailAndPassword(auth, email, password);
-
+    await ensureUserDocument(result.user, { name });
     return { success: true, user: result.user };
   } catch (error) {
     switch (error.code) {
@@ -89,11 +90,11 @@ export async function signUp(email, password, confirmPassword) {
       default:
         return { error: "Erro ao cadastrar" };
     }
-  } 
+  }
 }
 
 export async function recoverPassword(email) {
-  if(!email) {
+  if (!email) {
     return { error: "Email obrigatório" };
   }
   try {
@@ -110,5 +111,19 @@ export async function recoverPassword(email) {
       default:
         return { error: "Erro ao recuperar senha" };
     }
+  }
+}
+
+export async function ensureUserDocument(user, extraData = {}) {
+  const userRef = doc(db, "users", user.uid);
+  const userSnap = await getDoc(userRef);
+
+  if (!userSnap.exists()) {
+    await setDoc(userRef, {
+      name: user.displayName || extraData.name || "Usuário",
+      email: user.email,
+      photo: user.photoURL || "https://i.pravatar.cc/150?img=3",
+      createdAt: new Date()
+    });
   }
 }
