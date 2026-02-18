@@ -1,8 +1,17 @@
 import { auth } from "../services/firebase"
+import { useNavigate } from "react-router-dom"
+import { useEffect } from "react"
 
-function Home (){
+function Home() {
+    const navigate = useNavigate();
     const user = auth.currentUser;
-    console.log(user);
+    useEffect(() => {
+        if (!user) {
+            navigate("/");
+        }
+    }, [user, navigate]);
+
+    if (!user) return null;
 
     return (
         <div>

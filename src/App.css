@@ -178,3 +178,25 @@ a:hover {
     transform: rotate(360deg);
   }
 }
+
+.error {
+  color: rgb(245, 61, 61);
+  text-align: center;
+}
+
+.subtitle {
+  color: rgba(255,255,255,0.8);
+  text-align: center;
+  font-size: 14px;
+  font-weight: 400;
+}
+
+.recoverPassword {
+  color: rgba(255,255,255,0.8);
+  text-align: center;
+  font-size: 14px;
+  font-weight: 400;
+  text-decoration: underline;
+  transition: 0.2s ease;
+  cursor: pointer;
+}
