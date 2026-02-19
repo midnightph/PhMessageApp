@@ -4,6 +4,7 @@ import { useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { onAuthStateChanged } from "firebase/auth";
 import "./styles.css";
+import { MessageSideBar } from "../../components/messageSideBar";
 
 function Home() {
   const navigate = useNavigate();
@@ -46,24 +47,7 @@ function Home() {
         <div className="sidebar-header">
           <h3>{data.name || data.email}</h3>
         </div>
-
-        <div className="chat-list">
-          <div className="chat-item active">
-            <div className="avatar"></div>
-            <div>
-              <h4>João</h4>
-              <p>Última mensagem...</p>
-            </div>
-          </div>
-
-          <div className="chat-item">
-            <div className="avatar"></div>
-            <div>
-              <h4>Maria</h4>
-              <p>Oi, tudo bem?</p>
-            </div>
-          </div>
-        </div>
+        <MessageSideBar />
       </div>
 
       {/* Chat Area */}

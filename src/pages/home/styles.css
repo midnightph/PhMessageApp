@@ -21,26 +21,6 @@
   border-bottom: 1px solid rgba(255,255,255,0.1);
 }
 
-.chat-list {
-  flex: 1;
-  overflow-y: auto;
-}
-
-.chat-item {
-  display: flex;
-  gap: 12px;
-  padding: 15px;
-  cursor: pointer;
-  transition: 0.2s;
-}
-
-.chat-item:hover {
-  background: rgba(255,255,255,0.05);
-}
-
-.chat-item.active {
-  background: rgba(99,102,241,0.2);
-}
 
 .avatar {
   width: 45px;
