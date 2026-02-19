@@ -16,7 +16,7 @@ function Home() {
     const unsubscribe = onAuthStateChanged(auth, async (currentUser) => {
       if (!currentUser) {
         setUser(null);
-        navigate("/");
+        navigate("/login");
         return;
       }
 
