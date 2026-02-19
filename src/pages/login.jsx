@@ -41,7 +41,7 @@ function Login() {
                                 setError(result.error);
                                 return;
                             }
-                            navigate('/home');
+                            navigate('/');
                         }}
                     >
                         {loading ? <div className="spinner"></div> : "Entrar"}
@@ -59,7 +59,7 @@ function Login() {
                                 return;
                             }
 
-                            navigate('/home');
+                            navigate('/');
                         }}
                     >
                         {googleLoading ? <div className="spinnerGoogle"></div> : (<><img

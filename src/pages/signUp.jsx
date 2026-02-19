@@ -46,7 +46,7 @@ function SignUp() {
                                 setError(result.error);
                                 return;
                             }
-                            navigate('/home');
+                            navigate('/');
                         }}
                     >
                         {loading ? <div className="spinner"></div> : "Cadastrar-se"}
@@ -64,7 +64,7 @@ function SignUp() {
                                 return;
                             }
 
-                            navigate('/home');
+                            navigate('/');
                         }}
                     >
                         {googleLoading ? <div className="spinnerGoogle"></div> : (<><img

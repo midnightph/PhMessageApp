@@ -9,18 +9,18 @@ export function MessageSideBar() {
 
     useEffect(() => {
         async function fetchData() {
-            try{
-            const user = auth.currentUser;
-            if (!user) return;
+            try {
+                const user = auth.currentUser;
+                if (!user) return;
 
-            const data = await getUserConversations(user.uid);
-            setConversations(data);
-            console.log(data)
-            setIsLoading(false);
-        } catch (error) {
-            console.error(error);
+                const data = await getUserConversations(user.uid);
+                setConversations(data);
+                console.log(data)
+                setIsLoading(false);
+            } catch (error) {
+                console.error(error);
+            }
         }
-    }
 
         fetchData();
     }, []);
@@ -31,19 +31,32 @@ export function MessageSideBar() {
         </div>
     );
     if (conversations === undefined) return null;
-    if(conversations.length === 0) return <p className="no-conversations">Você não tem nenhuma conversa</p>;
+    if (conversations.length === 0) return <p className="no-conversations">Você não tem nenhuma conversa</p>;
 
     return (
         <div className="chat-list">
-            {conversations.map((conv) => (
-                <div key={conv.id} className="chat-item">
-                    <div className="avatar"></div>
-                    <div>
-                        <h4>{conv.name || "Conversa"}</h4>
-                        <p>{conv.lastMessage || "Sem mensagens"}</p>
+            {conversations.map((conv) => {
+                const currentUser = auth.currentUser;
+                const otherUid = conv.participants.find(
+                    (uid) => uid !== currentUser.uid
+                );
+
+                const otherUser = conv.participantInfo?.[otherUid];
+
+                return (
+                    <div key={conv.id} className="chat-item">
+                        <div className="avatar">
+                            {otherUser?.photo && (
+                                <img src={otherUser.photo} alt={otherUser.name} />
+                            )}
+                        </div>
+                        <div>
+                            <h4>{otherUser?.name || "Usuário"}</h4>
+                            <p>{conv.lastMessage || "Sem mensagens"}</p>
+                        </div>
                     </div>
-                </div>
-            ))}
+                );
+            })}
         </div>
     );
 }
