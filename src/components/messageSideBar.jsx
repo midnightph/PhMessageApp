@@ -41,7 +41,7 @@ export function MessageSideBar() {
                     (uid) => uid !== currentUser.uid
                 );
 
-                const otherUser = conv.participantInfo?.[otherUid];
+                const otherUser = conv.participantsInfo?.[otherUid];
 
                 return (
                     <div key={conv.id} className="chat-item">

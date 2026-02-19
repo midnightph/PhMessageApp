@@ -21,14 +21,6 @@
   border-bottom: 1px solid rgba(255,255,255,0.1);
 }
 
-
-.avatar {
-  width: 45px;
-  height: 45px;
-  border-radius: 50%;
-  background: linear-gradient(45deg, #6366f1, #8b5cf6);
-}
-
 /* Chat area */
 .chat-area {
   width: 70%;
