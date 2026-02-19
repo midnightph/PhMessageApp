@@ -118,3 +118,9 @@
   }
 }
 
+.no-conversations {
+  color: rgba(255,255,255,0.8);
+  text-align: center;
+  margin-top: 20px;
+}
+
