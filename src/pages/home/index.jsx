@@ -5,6 +5,7 @@ import { useEffect, useState } from "react";
 import { onAuthStateChanged } from "firebase/auth";
 import "./styles.css";
 import { MessageSideBar } from "../../components/messageSideBar";
+import { getMessages } from "../../services/conversationService";
 
 function Home() {
   const navigate = useNavigate();
@@ -13,6 +14,7 @@ function Home() {
   const [data, setData] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
   const [activeConversation, setActiveConversation] = useState(null);
+  const [messages, setMessages] = useState([]);
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (currentUser) => {
@@ -32,6 +34,17 @@ function Home() {
 
     return () => unsubscribe();
   }, [navigate]);
+
+  useEffect(() => {
+    if (!activeConversation) return;
+
+    const unsubscribe = getMessages(
+      activeConversation.id,
+      setMessages
+    );
+
+    return () => unsubscribe && unsubscribe();
+  }, [activeConversation]);
 
   if (user === undefined) return null;
   if (!user || !data) return null;
@@ -65,15 +78,23 @@ function Home() {
           </h3>
         </div>
 
-        <div className="messages">
-          <div className="message received">
-            <p>Fala mano!</p>
+        {activeConversation ? (
+          <div className="messages">
+            {messages.map((message) => (
+              <div
+                key={message.id}
+                className={`message ${message.senderId === user.uid ? "sent" : "received"
+                  }`}
+              >
+                <p>{message.text}</p>
+              </div>
+            ))}
           </div>
-
-          <div className="message sent">
-            <p>Salve!</p>
+        ) : (
+          <div className="no-chat-selected">
+            <p>Ainda nada aqui</p>
           </div>
-        </div>
+        )}
 
         <div className="message-input">
           <input type="text" placeholder="Digite uma mensagem..." />
