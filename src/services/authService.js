@@ -9,9 +9,9 @@ export async function login(email, password) {
   if (!email || !password) {
     return { error: "Email e senha são obrigatórios" };
   }
-  await ensureUserDocument(auth.currentUser);
   try {
     await signInWithEmailAndPassword(auth, email, password);
+    await ensureUserDocument(auth.currentUser);
   } catch (error) {
     switch (error.code) {
       case "auth/invalid-email":

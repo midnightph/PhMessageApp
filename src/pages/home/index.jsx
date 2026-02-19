@@ -12,6 +12,7 @@ function Home() {
   const [user, setUser] = useState(undefined);
   const [data, setData] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [activeConversation, setActiveConversation] = useState(null);
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (currentUser) => {
@@ -47,13 +48,21 @@ function Home() {
         <div className="sidebar-header">
           <h3>{data.name || data.email}</h3>
         </div>
-        <MessageSideBar />
+        <MessageSideBar onSelectConversation={setActiveConversation} />
       </div>
 
       {/* Chat Area */}
       <div className="chat-area">
         <div className="chat-header">
-          <h3>João</h3>
+          <h3>
+            {activeConversation
+              ? activeConversation.participantsInfo[
+                activeConversation.participants.find(
+                  (uid) => uid !== user.uid
+                )
+              ]?.name
+              : "Selecione uma conversa"}
+          </h3>
         </div>
 
         <div className="messages">

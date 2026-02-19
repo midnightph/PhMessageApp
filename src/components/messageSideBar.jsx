@@ -3,7 +3,7 @@ import { useEffect, useState } from "react";
 import { getUserConversations } from "../services/conversationService";
 import { auth } from "../services/firebase";
 
-export function MessageSideBar() {
+export function MessageSideBar({ onSelectConversation }) {
     const [conversations, setConversations] = useState(undefined);
     const [isLoading, setIsLoading] = useState(true);
 
@@ -44,7 +44,9 @@ export function MessageSideBar() {
                 const otherUser = conv.participantsInfo?.[otherUid];
 
                 return (
-                    <div key={conv.id} className="chat-item">
+                    <div key={conv.id} className="chat-item" onClick={()=>{
+                        onSelectConversation(conv)
+                    }}>
                         <div className="avatar">
                             {otherUser?.photo && (
                                 <img src={otherUser.photo} alt={otherUser.name} />
