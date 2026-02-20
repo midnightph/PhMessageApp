@@ -3,6 +3,7 @@ import Login from "../pages/login";
 import Home from "../pages/home/index";
 import SignUp from "../pages/signUp";
 import PrivateRoute from "../components/privateRoute";
+import Profile from "../pages/profile";
 
 export default function AppRoutes() {
   return (
@@ -15,6 +16,7 @@ export default function AppRoutes() {
         } />
         <Route path="/login" element={<Login />} />
         <Route path="/signUp" element={<SignUp />} />
+        <Route path="/profile" element={<Profile />} />
       </Routes>
     </BrowserRouter>
   );
