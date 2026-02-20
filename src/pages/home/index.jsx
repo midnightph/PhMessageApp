@@ -18,6 +18,13 @@ function Home() {
   const [activeConversation, setActiveConversation] = useState(null);
   const [messages, setMessages] = useState([]);
   const [isLoadingMessages, setIsLoadingMessages] = useState(false);
+  const messagesEndRef = useRef(null);
+
+  useEffect(() => {
+    if (messagesEndRef.current) {
+      messagesEndRef.current.scrollIntoView({ behavior: "smooth" });
+    }
+  }, [messages]);
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (currentUser) => {
@@ -107,6 +114,7 @@ function Home() {
                 <p>{message.text}</p>
               </div>
             ))}
+            <div ref={messagesEndRef} />
           </div>
         )}
 
@@ -123,7 +131,7 @@ function Home() {
                 await sendMessage(activeConversation.id, messageText);
                 setMessageText("");
               }
-            }}   />
+            }} />
           <button type="submit" onClick={async () => {
             await sendMessage(activeConversation.id, messageText)
             return setMessageText('')
