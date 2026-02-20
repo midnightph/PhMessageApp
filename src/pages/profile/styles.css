@@ -1,30 +1,165 @@
+/* Layout geral reaproveitando teu chat-container */
+
 .sidebar-header-profile {
   padding: 20px;
-  border-bottom: 1px solid rgba(255,255,255,0.1);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
   display: flex;
-  flex-direction: row;
   align-items: center;
-  gap: 10px;
+  gap: 14px;
+  background: rgba(255, 255, 255, 0.02);
+  backdrop-filter: blur(6px);
 }
+
+.sidebar-header-profile svg {
+  cursor: pointer;
+}
+
+/* Área principal */
 
 .content {
-    width: 70%;
-    display: flex;
-    flex-direction: column;
-    margin-top: 20px;
+  width: 100%;
+  max-width: 800px;
+  margin: 40px auto;
+  padding: 40px;
+  background: rgba(255, 255, 255, 0.03);
+  backdrop-filter: blur(14px);
+  border-radius: 20px;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.4);
+  animation: fadeUp 0.4s ease;
 }
+
+.content h1 {
+  font-size: 28px;
+  margin-bottom: 20px;
+  font-weight: 600;
+  text-align: center;
+}
+
+/* Imagem */
 
 .profile-image {
-    width: 150px;
-    height: 150px;
-    border-radius: 50%;
-    object-fit: cover;
-    margin-top: 20px;
+  width: 160px;
+  height: 160px;
+  border-radius: 50%;
+  object-fit: cover;
+  margin-top: 20px;
+  border: 4px solid rgba(255, 255, 255, 0.08);
+  box-shadow: 0 0 30px rgba(0, 140, 255, 0.3);
+  transition: 0.3s ease;
 }
 
+.profile-image:hover {
+  transform: scale(1.05);
+  box-shadow: 0 0 40px rgba(0, 140, 255, 0.6);
+}
+
+/* Dados */
+
 .profile-data {
-    margin-top: 20px;
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
+  margin-top: 30px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  font-size: 16px;
+}
+
+.profile-data p {
+  padding: 14px 18px;
+  background: rgba(255, 255, 255, 0.04);
+  border-radius: 12px;
+  transition: 0.2s ease;
+}
+
+.profile-data p:hover {
+  background: rgba(255, 255, 255, 0.08);
+  transform: translateY(-2px);
+}
+
+/* Spinner */
+
+.loading-container {
+  height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.spinner {
+  width: 45px;
+  height: 45px;
+  border: 4px solid rgba(255, 255, 255, 0.1);
+  border-top: 4px solid #00aaff;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+/* Animações */
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes fadeUp {
+  from {
+    opacity: 0;
+    transform: translateY(15px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.profile-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  background: rgba(255, 255, 255, 0.04);
+  padding: 14px 18px;
+  border-radius: 12px;
+  transition: 0.2s ease;
+}
+
+.profile-row:hover {
+  background: rgba(255, 255, 255, 0.08);
+  transform: translateY(-2px);
+}
+
+.edit-btn,
+.save-btn {
+  padding: 6px 12px;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 14px;
+  transition: 0.2s;
+}
+
+.edit-btn {
+  background: rgba(255, 255, 255, 0.1);
+  color: white;
+}
+
+.edit-btn:hover {
+  background: rgba(255, 255, 255, 0.2);
+}
+
+.save-btn {
+  background: #00aaff;
+  color: white;
+}
+
+.save-btn:hover {
+  background: #0088cc;
+}
+
+.edit-input {
+  padding: 6px 10px;
+  border-radius: 8px;
+  border: 1px solid rgba(255,255,255,0.2);
+  background: rgba(255,255,255,0.05);
+  color: white;
+  outline: none;
 }

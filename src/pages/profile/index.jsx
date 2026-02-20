@@ -2,7 +2,7 @@ import "./styles.css"
 import { FaArrowLeft } from "react-icons/fa"
 import { useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
-import { getUserData } from "../../services/profileService";
+import { getUserData, updateUserName } from "../../services/profileService";
 import { auth } from "../../services/firebase";
 import { onAuthStateChanged } from "firebase/auth";
 
@@ -12,6 +12,8 @@ export default function Profile() {
 
     const [data, setData] = useState(null);
     const [loading, setLoading] = useState(true);
+    const [editing, setEditing] = useState(false);
+    const [newName, setNewName] = useState("");
 
     useEffect(() => {
         const unsubscribe = onAuthStateChanged(auth, async (user) => {
@@ -36,7 +38,24 @@ export default function Profile() {
         return () => unsubscribe();
     }, []);
 
-    if(loading) return (
+    async function handleSave() {
+        if (!newName.trim()) return;
+
+        try {
+            await updateUserName(auth.currentUser.uid, newName);
+
+            setData(prev => ({
+                ...prev,
+                name: newName
+            }));
+
+            setEditing(false);
+        } catch (error) {
+            console.error("Erro ao atualizar nome:", error);
+        }
+    }
+
+    if (loading) return (
         <div className="loading-container">
             <div className="spinner"></div>
         </div>
@@ -55,12 +74,44 @@ export default function Profile() {
             <div className="content">
                 <h1>Seu Perfil</h1>
 
-                <div style={{display: 'flex', justifyContent: 'center'}}>
+                <div style={{ display: 'flex', justifyContent: 'center' }}>
                     <img src={data.photo} alt="Foto de perfil" className="profile-image" />
                 </div>
 
                 <div className="profile-data">
-                    <p><strong>Nome:</strong> {data.name}</p>
+                    <div className="profile-row">
+                        <strong>Nome:</strong>
+
+                        {editing ? (
+                            <>
+                                <input
+                                    value={newName}
+                                    onChange={(e) => setNewName(e.target.value)}
+                                    className="edit-input"
+                                />
+                                <button
+                                    className="save-btn"
+                                    onClick={handleSave}
+                                >
+                                    Salvar
+                                </button>
+                            </>
+                        ) : (
+                            <>
+                                <span>{data.name}</span>
+                                <button
+                                    className="edit-btn"
+                                    onClick={() => {
+                                        setEditing(true);
+                                        setNewName(data.name);
+                                    }}
+                                >
+                                    Editar
+                                </button>
+                            </>
+                        )}
+                    </div>
+
                     <p><strong>Email:</strong> {data.email}</p>
                 </div>
             </div>

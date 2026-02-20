@@ -11,6 +11,7 @@ import {
   listenNewMessages
 } from "../../services/conversationService";
 import { FaSignOutAlt, FaUserCircle } from "react-icons/fa";
+import { motion, AnimatePresence } from "framer-motion";
 
 function Home() {
   const navigate = useNavigate();
@@ -23,7 +24,7 @@ function Home() {
   const [messages, setMessages] = useState([]);
   const [lastDoc, setLastDoc] = useState(null);
   const [hasMore, setHasMore] = useState(true);
-  const [isLoadingMessages, setIsLoadingMessages] = useState(false);
+  const [isLoadingMessages, setIsLoadingMessages] = useState(true);
   const messagesContainerRef = useRef(null);
 
   // LOGIN
@@ -70,7 +71,7 @@ function Home() {
         messagesContainerRef.current.scrollTop =
           messagesContainerRef.current.scrollHeight;
       }
-    }, 100);
+    }, 5);
   }
 
   async function loadMoreMessages() {
@@ -116,6 +117,19 @@ function Home() {
 
     return () => unsubscribe();
   }, [activeConversation]);
+
+  const listVariants = {
+    visible: {
+      transition: {
+        staggerChildren: 0.05,
+      },
+    },
+  };
+
+  const itemVariants = {
+    hidden: { opacity: 0, y: 20 },
+    visible: { opacity: 1, y: 0 },
+  };
 
   if (user === undefined) return null;
   if (!user || !data) return null;
@@ -166,26 +180,39 @@ function Home() {
                   : "Selecione uma conversa"}
               </h3>
             </div>
-            <div
+
+            {!isLoadingMessages ? (<motion.div
+              key={activeConversation?.id}
               className="messages"
               ref={messagesContainerRef}
               onScroll={handleScroll}
+              variants={listVariants}
+              initial="hidden"
+              animate="visible"
             >
 
-              {isLoadingMessages && <p>Carregando...</p>}
-
-              {messages.map((message) => (
-                <div
-                  key={message.id}
-                  className={`message ${message.senderId === user.uid
-                    ? "sent"
-                    : "received"
-                    }`}
-                >
-                  <p>{message.text}</p>
-                </div>
-              ))}
-            </div>
+              <AnimatePresence initial={false}>
+                {messages.map((message) => (
+                  <motion.div
+                    layout
+                    key={message.id}
+                    className={`message ${message.senderId === user.uid
+                      ? "sent"
+                      : "received"
+                      }`}
+                    variants={itemVariants}
+                    exit={{ opacity: 0, y: -20 }}
+                    transition={{ duration: 0.25 }}
+                  >
+                    <p>{message.text}</p>
+                  </motion.div>
+                ))}
+              </AnimatePresence>
+            </motion.div>) : (
+              <div className="loading-container">
+                <div className="spinner"></div>
+              </div>
+            )}
 
             <div className="message-input">
               <input
