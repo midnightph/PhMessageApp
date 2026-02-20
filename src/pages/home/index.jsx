@@ -23,7 +23,7 @@ function Home() {
   const [lastDoc, setLastDoc] = useState(null);
   const [hasMore, setHasMore] = useState(true);
   const [isLoadingMessages, setIsLoadingMessages] = useState(false);
-
+  console.log(activeConversation)
   const messagesContainerRef = useRef(null);
 
   // LOGIN
@@ -144,21 +144,32 @@ function Home() {
           </div>
         ) : (
           <>
+            <div className="chat-header">
+              <h3>
+                {activeConversation
+                  ? activeConversation.participantsInfo[
+                    activeConversation.participants.find(
+                      (uid) => uid !== user.uid
+                    )
+                  ]?.name
+                  : "Selecione uma conversa"}
+              </h3>
+            </div>
             <div
               className="messages"
               ref={messagesContainerRef}
               onScroll={handleScroll}
             >
+
               {isLoadingMessages && <p>Carregando...</p>}
 
               {messages.map((message) => (
                 <div
                   key={message.id}
-                  className={`message ${
-                    message.senderId === user.uid
-                      ? "sent"
-                      : "received"
-                  }`}
+                  className={`message ${message.senderId === user.uid
+                    ? "sent"
+                    : "received"
+                    }`}
                 >
                   <p>{message.text}</p>
                 </div>
