@@ -1,22 +1,26 @@
 // services/conversationService.js
 
 import { db } from "./firebase";
-import { collection, query, where, orderBy, getDocs } from "firebase/firestore";
-import { onSnapshot } from "firebase/firestore";
+import { collection, query, where, orderBy, getDocs, serverTimestamp, onSnapshot, addDoc, updateDoc, doc } from "firebase/firestore";
+import { auth } from "./firebase";
 
-export async function getUserConversations(uid) {
+export function getUserConversations(uid, callback) {
   const q = query(
     collection(db, "conversations"),
     where("participants", "array-contains", uid),
     orderBy("updatedAt", "desc")
   );
 
-  const snapshot = await getDocs(q);
+  const unsubscribe = onSnapshot(q, (snapshot) => {
+    const conversations = snapshot.docs.map(doc => ({
+      id: doc.id,
+      ...doc.data()
+    }));
 
-  return snapshot.docs.map(doc => ({
-    id: doc.id,
-    ...doc.data()
-  }));
+    callback(conversations);
+  });
+
+  return unsubscribe;
 }
 
 export async function getMessages(id, callback) {
@@ -40,4 +44,13 @@ export async function getMessages(id, callback) {
   });
 
   return () => unsubscribe();
+}
+
+export async function sendMessage(id, message) {
+  const user = auth.currentUser;
+  if (!user) return;
+  if (!message) return;
+  const messageContent = { text: message, sendAt: new serverTimestamp(), senderId: user.uid };
+  await addDoc(collection(db, "conversations", id, "messages"), messageContent);
+  await updateDoc(doc(db, "conversations", id), { updatedAt: new serverTimestamp(), lastMessage: message, lastMessageSender: user.uid });
 }

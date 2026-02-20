@@ -5,8 +5,8 @@ import { useNavigate } from "react-router-dom";
 
 function Login() {
     const navigate = useNavigate();
-    const [email, setEmail] = useState('');
-    const [password, setPassword] = useState('');
+    const [email, setEmail] = useState('pedrorodacinski26@gmail.com');
+    const [password, setPassword] = useState('PEdr');
     const [loading, setLoading] = useState(false);
     const [googleLoading, setGoogleLoading] = useState(false);
     const [error, setError] = useState('');
@@ -44,7 +44,15 @@ function Login() {
                             navigate('/');
                         }}
                     >
-                        {loading ? <div className="spinner"></div> : "Entrar"}
+                        {loading ? <div className="spinner" style={{
+                            width: '18px',
+                            height: '18px',
+                            border: '3px solid rgba(255, 255, 255, 0.3)',
+                            borderTop: '3px solid white',
+                            borderRadius: '50%',
+                            animation: 'spin 0.8s linear infinite',
+                            margin: '0 auto'
+                        }}></div> : "Entrar"}
                     </button>
 
                     <button
@@ -92,9 +100,9 @@ function Login() {
 
                     <h2>Ainda não possui uma conta?</h2>
                     <a href="/signUp">Cadastre-se</a>
-                </div>
+                </div >
 
-            </div>
+            </div >
         </>
     )
 }

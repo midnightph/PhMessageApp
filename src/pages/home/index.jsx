@@ -4,17 +4,20 @@ import { useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { onAuthStateChanged } from "firebase/auth";
 import "./styles.css";
+import { useRef } from "react";
 import { MessageSideBar } from "../../components/messageSideBar";
-import { getMessages } from "../../services/conversationService";
+import { getMessages, sendMessage } from "../../services/conversationService";
 
 function Home() {
   const navigate = useNavigate();
-
+  const [messageText, setMessageText] = useState("");
+  const inputRef = useRef(null);
   const [user, setUser] = useState(undefined);
   const [data, setData] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
   const [activeConversation, setActiveConversation] = useState(null);
   const [messages, setMessages] = useState([]);
+  const [isLoadingMessages, setIsLoadingMessages] = useState(false);
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (currentUser) => {
@@ -37,10 +40,17 @@ function Home() {
 
   useEffect(() => {
     if (!activeConversation) return;
+    if (activeConversation && inputRef.current) {
+      inputRef.current.focus();
+    }
+    setIsLoadingMessages(true);
 
     const unsubscribe = getMessages(
       activeConversation.id,
-      setMessages
+      (msgs) => {
+        setMessages(msgs);
+        setIsLoadingMessages(false); // aqui sim
+      }
     );
 
     return () => unsubscribe && unsubscribe();
@@ -78,7 +88,15 @@ function Home() {
           </h3>
         </div>
 
-        {activeConversation ? (
+        {!activeConversation ? (
+          <div className="no-chat-selected">
+            <p>Ainda nada aqui</p>
+          </div>
+        ) : isLoadingMessages ? (
+          <div className="loading-container">
+            <div className="spinner"></div>
+          </div>
+        ) : (
           <div className="messages">
             {messages.map((message) => (
               <div
@@ -90,15 +108,11 @@ function Home() {
               </div>
             ))}
           </div>
-        ) : (
-          <div className="no-chat-selected">
-            <p>Ainda nada aqui</p>
-          </div>
         )}
 
         <div className="message-input">
-          <input type="text" placeholder="Digite uma mensagem..." />
-          <button>Enviar</button>
+          <input ref={inputRef} type="text" placeholder="Digite uma mensagem..." value={messageText} onChange={(e) => setMessageText(e.target.value)} />
+          <button type="submit" onClick={() => sendMessage(activeConversation.id, messageText)}>Enviar</button>
         </div>
       </div>
     </div>

@@ -8,21 +8,18 @@ export function MessageSideBar({ onSelectConversation }) {
     const [isLoading, setIsLoading] = useState(true);
 
     useEffect(() => {
-        async function fetchData() {
-            try {
-                const user = auth.currentUser;
-                if (!user) return;
+        const user = auth.currentUser;
+        if (!user) return;
 
-                const data = await getUserConversations(user.uid);
+        const unsubscribe = getUserConversations(
+            user.uid,
+            (data) => {
                 setConversations(data);
-                console.log(data)
                 setIsLoading(false);
-            } catch (error) {
-                console.error(error);
             }
-        }
+        );
 
-        fetchData();
+        return () => unsubscribe && unsubscribe();
     }, []);
 
     if (isLoading) return (
@@ -44,7 +41,7 @@ export function MessageSideBar({ onSelectConversation }) {
                 const otherUser = conv.participantsInfo?.[otherUid];
 
                 return (
-                    <div key={conv.id} className="chat-item" onClick={()=>{
+                    <div key={conv.id} className="chat-item" onClick={() => {
                         onSelectConversation(conv)
                     }}>
                         <div className="avatar">
