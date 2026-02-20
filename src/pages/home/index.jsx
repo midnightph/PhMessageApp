@@ -10,6 +10,7 @@ import {
   sendMessage,
   listenNewMessages
 } from "../../services/conversationService";
+import { FaSignOutAlt } from "react-icons/fa";
 
 function Home() {
   const navigate = useNavigate();
@@ -23,7 +24,6 @@ function Home() {
   const [lastDoc, setLastDoc] = useState(null);
   const [hasMore, setHasMore] = useState(true);
   const [isLoadingMessages, setIsLoadingMessages] = useState(false);
-  console.log(activeConversation)
   const messagesContainerRef = useRef(null);
 
   // LOGIN
@@ -133,6 +133,12 @@ function Home() {
       <div className="sidebar">
         <div className="sidebar-header">
           <h3>{data.name || data.email}</h3>
+          <button className="logout-button" onClick={() =>{
+            auth.signOut()
+            navigate('/login')}}>
+            <FaSignOutAlt style={{ marginRight: 5 }} />
+            Logout
+          </button>
         </div>
         <MessageSideBar onSelectConversation={setActiveConversation} />
       </div>
