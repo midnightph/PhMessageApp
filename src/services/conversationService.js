@@ -50,7 +50,28 @@ export async function sendMessage(id, message) {
   const user = auth.currentUser;
   if (!user) return;
   if (!message) return;
-  const messageContent = { text: message, sendAt: new serverTimestamp(), senderId: user.uid };
-  await addDoc(collection(db, "conversations", id, "messages"), messageContent);
-  await updateDoc(doc(db, "conversations", id), { updatedAt: new serverTimestamp(), lastMessage: message, lastMessageSender: user.uid });
+
+  const trimmed = message.trim();
+
+  const messageContent = {
+    text: trimmed,
+    sendAt: serverTimestamp(),
+    senderId: user.uid
+  };
+
+  await addDoc(
+    collection(db, "conversations", id, "messages"),
+    messageContent
+  );
+
+  const preview =
+    trimmed.length > 30
+      ? trimmed.slice(0, 30) + "..."
+      : trimmed;
+
+  await updateDoc(doc(db, "conversations", id), {
+    updatedAt: serverTimestamp(),
+    lastMessage: preview,
+    lastMessageSender: user.uid
+  });
 }

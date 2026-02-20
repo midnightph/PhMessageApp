@@ -111,8 +111,23 @@ function Home() {
         )}
 
         <div className="message-input">
-          <input ref={inputRef} type="text" placeholder="Digite uma mensagem..." value={messageText} onChange={(e) => setMessageText(e.target.value)} />
-          <button type="submit" onClick={() => sendMessage(activeConversation.id, messageText)}>Enviar</button>
+          <input
+            ref={inputRef}
+            type="text"
+            placeholder="Digite uma mensagem..."
+            value={messageText}
+            onChange={(e) => setMessageText(e.target.value)}
+            onKeyDown={async (e) => {
+              if (e.key === "Enter" && messageText.trim()) {
+                e.preventDefault();
+                await sendMessage(activeConversation.id, messageText);
+                setMessageText("");
+              }
+            }}   />
+          <button type="submit" onClick={async () => {
+            await sendMessage(activeConversation.id, messageText)
+            return setMessageText('')
+          }}>Enviar</button>
         </div>
       </div>
     </div>
