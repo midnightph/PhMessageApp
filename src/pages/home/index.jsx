@@ -25,6 +25,7 @@ function Home() {
   const [lastDoc, setLastDoc] = useState(null);
   const [hasMore, setHasMore] = useState(true);
   const [isLoadingMessages, setIsLoadingMessages] = useState(true);
+  const isLoadingMoreRef = useRef(false);
   const messagesContainerRef = useRef(null);
 
   // LOGIN
@@ -56,6 +57,43 @@ function Home() {
     loadInitialMessages();
   }, [activeConversation]);
 
+  useEffect(() => {
+    if (!activeConversation || isLoadingMessages) return;
+
+    // pequeno delay pra garantir que o input já renderizou
+    setTimeout(() => {
+      inputRef.current?.focus();
+    }, 50);
+
+  }, [activeConversation, isLoadingMessages]);
+
+  useEffect(() => {
+    if (!activeConversation) return;
+
+    const unsubscribe = listenNewMessages(
+      activeConversation.id,
+      (newMessage) => {
+        setMessages(prev => {
+          if (prev.some(m => m.id === newMessage.id)) return prev;
+
+          const updated = [...prev, newMessage];
+
+          // Scroll só para mensagens novas
+          setTimeout(() => {
+            const container = messagesContainerRef.current;
+            if (!container) return;
+
+            container.scrollTop = container.scrollHeight;
+          }, 0);
+
+          return updated;
+        });
+      }
+    );
+
+    return () => unsubscribe();
+  }, [activeConversation]);
+
   async function loadInitialMessages() {
     const { messages, lastDoc, hasMore } =
       await getMessagesPage(activeConversation.id);
@@ -75,48 +113,45 @@ function Home() {
   }
 
   async function loadMoreMessages() {
-    if (!hasMore || !lastDoc) return;
+    if (!hasMore || !lastDoc || isLoadingMoreRef.current) return;
+
+    isLoadingMoreRef.current = true;
 
     const container = messagesContainerRef.current;
     const previousHeight = container.scrollHeight;
 
-    const { messages: newMessages, lastDoc: newLastDoc, hasMore: more }
-      = await getMessagesPage(activeConversation.id, lastDoc);
+    const {
+      messages: newMessages,
+      lastDoc: newLastDoc,
+      hasMore: more
+    } = await getMessagesPage(activeConversation.id, lastDoc);
+
+    if (newMessages.length === 0) {
+      isLoadingMoreRef.current = false;
+      return;
+    }
 
     setMessages(prev => [...newMessages, ...prev]);
     setLastDoc(newLastDoc);
     setHasMore(more);
 
-    setTimeout(() => {
+    requestAnimationFrame(() => {
       container.scrollTop =
         container.scrollHeight - previousHeight;
-    }, 50);
+
+      isLoadingMoreRef.current = false;
+    });
   }
 
   // SCROLL INFINITO
   function handleScroll() {
     const container = messagesContainerRef.current;
-    if (container.scrollTop === 0) {
+    if (!container) return;
+
+    if (container.scrollTop <= 0 && !isLoadingMoreRef.current && hasMore) {
       loadMoreMessages();
     }
   }
-
-  // ESCUTAR MENSAGENS NOVAS
-  useEffect(() => {
-    if (!activeConversation) return;
-
-    const unsubscribe = listenNewMessages(
-      activeConversation.id,
-      (newMessage) => {
-        setMessages(prev => {
-          if (prev.some(m => m.id === newMessage.id)) return prev;
-          return [...prev, newMessage];
-        });
-      }
-    );
-
-    return () => unsubscribe();
-  }, [activeConversation]);
 
   const listVariants = {
     visible: {
@@ -181,34 +216,31 @@ function Home() {
               </h3>
             </div>
 
-            {!isLoadingMessages ? (<motion.div
-              key={activeConversation?.id}
-              className="messages"
-              ref={messagesContainerRef}
-              onScroll={handleScroll}
-              variants={listVariants}
-              initial="hidden"
-              animate="visible"
-            >
-
-              <AnimatePresence initial={false}>
-                {messages.map((message) => (
-                  <motion.div
-                    layout
-                    key={message.id}
-                    className={`message ${message.senderId === user.uid
-                      ? "sent"
-                      : "received"
-                      }`}
-                    variants={itemVariants}
-                    exit={{ opacity: 0, y: -20 }}
-                    transition={{ duration: 0.25 }}
-                  >
-                    <p>{message.text}</p>
-                  </motion.div>
-                ))}
-              </AnimatePresence>
-            </motion.div>) : (
+            {!isLoadingMessages ? (
+              <div
+                className="messages"
+                ref={messagesContainerRef}
+                onScroll={handleScroll}
+              >
+                <AnimatePresence initial={false}>
+                  {messages.map((message) => (
+                    <motion.div
+                      layout
+                      key={message.id}
+                      className={`message ${message.senderId === user.uid
+                        ? "sent"
+                        : "received"
+                        }`}
+                      initial={{ opacity: 0, y: 20 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      exit={{ opacity: 0, y: -20 }}
+                      transition={{ duration: 0.25 }}
+                    >
+                      <p>{message.text}</p>
+                    </motion.div>
+                  ))}
+                </AnimatePresence>
+              </div>) : (
               <div className="loading-container">
                 <div className="spinner"></div>
               </div>
