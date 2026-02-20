@@ -20,7 +20,6 @@ export default function Profile() {
                     const docSnap = await getUserData(user);
                     if (docSnap.exists()) {
                         setData(docSnap.data());
-                        console.log(docSnap.data());
                         setLoading(false);
                     } else {
                         console.log("Nenhum dado encontrado!");
@@ -55,6 +54,15 @@ export default function Profile() {
             </div>
             <div className="content">
                 <h1>Seu Perfil</h1>
+
+                <div style={{display: 'flex', justifyContent: 'center'}}>
+                    <img src={data.photo} alt="Foto de perfil" className="profile-image" />
+                </div>
+
+                <div className="profile-data">
+                    <p><strong>Nome:</strong> {data.name}</p>
+                    <p><strong>Email:</strong> {data.email}</p>
+                </div>
             </div>
         </div>
     )
