@@ -1,8 +1,20 @@
-// services/conversationService.js
-
 import { db } from "./firebase";
-import { collection, query, where, orderBy, getDocs, serverTimestamp, onSnapshot, addDoc, updateDoc, doc } from "firebase/firestore";
+import {
+  collection,
+  query,
+  orderBy,
+  serverTimestamp,
+  onSnapshot,
+  addDoc,
+  updateDoc,
+  doc,
+  limit,
+  startAfter,
+  getDocs, where
+} from "firebase/firestore";
 import { auth } from "./firebase";
+
+const PAGE_SIZE = 20;
 
 export function getUserConversations(uid, callback) {
   const q = query(
@@ -23,35 +35,63 @@ export function getUserConversations(uid, callback) {
   return unsubscribe;
 }
 
-export async function getMessages(id, callback) {
+export async function getMessagesPage(conversationId, lastDoc = null) {
+  let q;
+
+  if (lastDoc) {
+    q = query(
+      collection(db, "conversations", conversationId, "messages"),
+      orderBy("sendAt", "desc"),
+      startAfter(lastDoc),
+      limit(PAGE_SIZE)
+    );
+  } else {
+    q = query(
+      collection(db, "conversations", conversationId, "messages"),
+      orderBy("sendAt", "desc"),
+      limit(PAGE_SIZE)
+    );
+  }
+
+  const snapshot = await getDocs(q);
+
+  const messages = snapshot.docs.map(doc => ({
+    id: doc.id,
+    ...doc.data()
+  }));
+
+  return {
+    messages: messages.reverse(),
+    lastDoc: snapshot.docs[snapshot.docs.length - 1] || null,
+    hasMore: snapshot.docs.length === PAGE_SIZE
+  };
+}
+
+export function listenNewMessages(conversationId, callback) {
   const q = query(
-    collection(
-      db,
-      "conversations",
-      id,
-      "messages"
-    ),
-    orderBy("sendAt", "asc")
+    collection(db, "conversations", conversationId, "messages"),
+    orderBy("sendAt", "desc"),
+    limit(1)
   );
 
-  const unsubscribe = onSnapshot(q, (snapshot) => {
-    const msgs = snapshot.docs.map(doc => ({
-      id: doc.id,
-      ...doc.data()
-    }));
-
-    callback(msgs);
+  return onSnapshot(q, (snapshot) => {
+    snapshot.docChanges().forEach(change => {
+      if (change.type === "added") {
+        callback({
+          id: change.doc.id,
+          ...change.doc.data()
+        });
+      }
+    });
   });
-
-  return () => unsubscribe();
 }
 
 export async function sendMessage(id, message) {
   const user = auth.currentUser;
   if (!user) return;
-  if (!message) return;
 
   const trimmed = message.trim();
+  if (!trimmed) return;
 
   const messageContent = {
     text: trimmed,

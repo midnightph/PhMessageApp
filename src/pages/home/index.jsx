@@ -1,12 +1,15 @@
 import { auth } from "../../services/firebase";
 import { getUserData } from "../../services/userService";
 import { useNavigate } from "react-router-dom";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { onAuthStateChanged } from "firebase/auth";
 import "./styles.css";
-import { useRef } from "react";
 import { MessageSideBar } from "../../components/messageSideBar";
-import { getMessages, sendMessage } from "../../services/conversationService";
+import {
+  getMessagesPage,
+  sendMessage,
+  listenNewMessages
+} from "../../services/conversationService";
 
 function Home() {
   const navigate = useNavigate();
@@ -17,60 +20,113 @@ function Home() {
   const [isLoading, setIsLoading] = useState(true);
   const [activeConversation, setActiveConversation] = useState(null);
   const [messages, setMessages] = useState([]);
+  const [lastDoc, setLastDoc] = useState(null);
+  const [hasMore, setHasMore] = useState(true);
   const [isLoadingMessages, setIsLoadingMessages] = useState(false);
-  const messagesEndRef = useRef(null);
 
-  useEffect(() => {
-    if (messagesEndRef.current) {
-      messagesEndRef.current.scrollIntoView({ behavior: "smooth" });
-    }
-  }, [messages]);
+  const messagesContainerRef = useRef(null);
 
+  // LOGIN
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (currentUser) => {
       if (!currentUser) {
-        setUser(null);
         navigate("/login");
         return;
       }
 
       setUser(currentUser);
-
       const userData = await getUserData(currentUser.uid);
       setData(userData);
-
       setIsLoading(false);
     });
 
     return () => unsubscribe();
   }, [navigate]);
 
+  // ABRIR CONVERSA
   useEffect(() => {
     if (!activeConversation) return;
-    if (activeConversation && inputRef.current) {
-      inputRef.current.focus();
-    }
+
+    setMessages([]);
+    setLastDoc(null);
+    setHasMore(true);
     setIsLoadingMessages(true);
 
-    const unsubscribe = getMessages(
+    loadInitialMessages();
+  }, [activeConversation]);
+
+  async function loadInitialMessages() {
+    const { messages, lastDoc, hasMore } =
+      await getMessagesPage(activeConversation.id);
+
+    setMessages(messages);
+    setLastDoc(lastDoc);
+    setHasMore(hasMore);
+    setIsLoadingMessages(false);
+
+    // Scroll só quando abrir
+    setTimeout(() => {
+      if (messagesContainerRef.current) {
+        messagesContainerRef.current.scrollTop =
+          messagesContainerRef.current.scrollHeight;
+      }
+    }, 100);
+  }
+
+  async function loadMoreMessages() {
+    if (!hasMore || !lastDoc) return;
+
+    const container = messagesContainerRef.current;
+    const previousHeight = container.scrollHeight;
+
+    const { messages: newMessages, lastDoc: newLastDoc, hasMore: more }
+      = await getMessagesPage(activeConversation.id, lastDoc);
+
+    setMessages(prev => [...newMessages, ...prev]);
+    setLastDoc(newLastDoc);
+    setHasMore(more);
+
+    setTimeout(() => {
+      container.scrollTop =
+        container.scrollHeight - previousHeight;
+    }, 50);
+  }
+
+  // SCROLL INFINITO
+  function handleScroll() {
+    const container = messagesContainerRef.current;
+    if (container.scrollTop === 0) {
+      loadMoreMessages();
+    }
+  }
+
+  // ESCUTAR MENSAGENS NOVAS
+  useEffect(() => {
+    if (!activeConversation) return;
+
+    const unsubscribe = listenNewMessages(
       activeConversation.id,
-      (msgs) => {
-        setMessages(msgs);
-        setIsLoadingMessages(false); // aqui sim
+      (newMessage) => {
+        setMessages(prev => {
+          if (prev.some(m => m.id === newMessage.id)) return prev;
+          return [...prev, newMessage];
+        });
       }
     );
 
-    return () => unsubscribe && unsubscribe();
+    return () => unsubscribe();
   }, [activeConversation]);
 
   if (user === undefined) return null;
   if (!user || !data) return null;
 
-  if (isLoading) return (
-    <div className="loading-container">
-      <div className="spinner"></div>
-    </div>
-  );
+  if (isLoading) {
+    return (
+      <div className="loading-container">
+        <div className="spinner"></div>
+      </div>
+    );
+  }
 
   return (
     <div className="chat-container">
@@ -81,62 +137,66 @@ function Home() {
         <MessageSideBar onSelectConversation={setActiveConversation} />
       </div>
 
-      {/* Chat Area */}
       <div className="chat-area">
-        <div className="chat-header">
-          <h3>
-            {activeConversation
-              ? activeConversation.participantsInfo[
-                activeConversation.participants.find(
-                  (uid) => uid !== user.uid
-                )
-              ]?.name
-              : "Selecione uma conversa"}
-          </h3>
-        </div>
-
         {!activeConversation ? (
           <div className="no-chat-selected">
             <p>Ainda nada aqui</p>
           </div>
-        ) : isLoadingMessages ? (
-          <div className="loading-container">
-            <div className="spinner"></div>
-          </div>
         ) : (
-          <div className="messages">
-            {messages.map((message) => (
-              <div
-                key={message.id}
-                className={`message ${message.senderId === user.uid ? "sent" : "received"
-                  }`}
-              >
-                <p>{message.text}</p>
-              </div>
-            ))}
-            <div ref={messagesEndRef} />
-          </div>
-        )}
+          <>
+            <div
+              className="messages"
+              ref={messagesContainerRef}
+              onScroll={handleScroll}
+            >
+              {isLoadingMessages && <p>Carregando...</p>}
 
-        <div className="message-input">
-          <input
-            ref={inputRef}
-            type="text"
-            placeholder="Digite uma mensagem..."
-            value={messageText}
-            onChange={(e) => setMessageText(e.target.value)}
-            onKeyDown={async (e) => {
-              if (e.key === "Enter" && messageText.trim()) {
-                e.preventDefault();
-                await sendMessage(activeConversation.id, messageText);
-                setMessageText("");
-              }
-            }} />
-          <button type="submit" onClick={async () => {
-            await sendMessage(activeConversation.id, messageText)
-            return setMessageText('')
-          }}>Enviar</button>
-        </div>
+              {messages.map((message) => (
+                <div
+                  key={message.id}
+                  className={`message ${
+                    message.senderId === user.uid
+                      ? "sent"
+                      : "received"
+                  }`}
+                >
+                  <p>{message.text}</p>
+                </div>
+              ))}
+            </div>
+
+            <div className="message-input">
+              <input
+                ref={inputRef}
+                type="text"
+                value={messageText}
+                onChange={(e) =>
+                  setMessageText(e.target.value)
+                }
+                onKeyDown={async (e) => {
+                  if (e.key === "Enter") {
+                    await sendMessage(
+                      activeConversation.id,
+                      messageText
+                    );
+                    setMessageText("");
+                  }
+                }}
+              />
+              <button
+                onClick={async () => {
+                  await sendMessage(
+                    activeConversation.id,
+                    messageText
+                  );
+                  setMessageText("");
+                }}
+              >
+                Enviar
+              </button>
+            </div>
+          </>
+        )}
       </div>
     </div>
   );
