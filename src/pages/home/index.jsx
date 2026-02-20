@@ -185,14 +185,15 @@ function Home() {
             <div className="message-input">
               <input
                 ref={inputRef}
+                placeholder="Digite uma mensagem..."
                 type="text"
                 value={messageText}
                 onChange={(e) =>
                   setMessageText(e.target.value)
                 }
-                onKeyDown={async (e) => {
+                onKeyDown={(e) => {
                   if (e.key === "Enter") {
-                    await sendMessage(
+                    sendMessage(
                       activeConversation.id,
                       messageText
                     );
@@ -201,8 +202,8 @@ function Home() {
                 }}
               />
               <button
-                onClick={async () => {
-                  await sendMessage(
+                onClick={() => {
+                  sendMessage(
                     activeConversation.id,
                     messageText
                   );
