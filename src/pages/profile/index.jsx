@@ -1,8 +1,8 @@
 import "./styles.css"
-import { FaArrowLeft } from "react-icons/fa"
+import { FaArrowLeft, FaPenSquare } from "react-icons/fa"
 import { useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
-import { getUserData, updateUserName } from "../../services/profileService";
+import { getUserData, updateUserName, handlePhotoChange } from "../../services/profileService";
 import { auth } from "../../services/firebase";
 import { onAuthStateChanged } from "firebase/auth";
 
@@ -14,6 +14,7 @@ export default function Profile() {
     const [loading, setLoading] = useState(true);
     const [editing, setEditing] = useState(false);
     const [newName, setNewName] = useState("");
+    const [isLoadingPhoto, setIsLoadingPhoto] = useState(false);
 
     useEffect(() => {
         const unsubscribe = onAuthStateChanged(auth, async (user) => {
@@ -55,6 +56,21 @@ export default function Profile() {
         }
     }
 
+    async function onPhotoChange(e) {
+        setIsLoadingPhoto(true);
+        const file = e.target.files[0];
+        if (!file) return;
+
+        const url = await handlePhotoChange(file);
+
+        setData(prev => ({
+            ...prev,
+            photo: url
+        }));
+
+        return setIsLoadingPhoto(false);
+    }
+
     if (loading) return (
         <div className="loading-container">
             <div className="spinner"></div>
@@ -74,8 +90,22 @@ export default function Profile() {
             <div className="content">
                 <h1>Seu Perfil</h1>
 
-                <div style={{ display: 'flex', justifyContent: 'center' }}>
-                    <img src={data.photo} alt="Foto de perfil" className="profile-image" />
+                <div className="photo-wrapper">
+                    {isLoadingPhoto ? (
+                        <div className="profile-image" style={{display: 'flex', alignItems: 'center', justifyContent: 'center'}}>
+                            <div className="spinner"></div>
+                        </div>
+                    ) : (<img src={data.photo} alt="Foto de perfil" className="profile-image" />)}
+                    <div className="edit-icon-container">
+                        <FaPenSquare size={18} className="edit-icon" />
+
+                        <input
+                            type="file"
+                            accept="image/*"
+                            onChange={onPhotoChange}
+                            className="file-input"
+                        />
+                    </div>
                 </div>
 
                 <div className="profile-data">
