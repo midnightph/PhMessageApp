@@ -23,20 +23,7 @@ function Login() {
 
                     <div className='inputs'>
                         <input type="text" placeholder='Email' onChange={(e) => setEmail(e.target.value)} value={email} />
-                        <input type="password" placeholder='Senha' onChange={(e) => setPassword(e.target.value)} value={password} onKeyDown={async () => {
-                            setLoading(true);
-                            setError('');
-
-                            const result = await login(email, password);
-
-                            setLoading(false);
-
-                            if (result.error) {
-                                setError(result.error);
-                                return;
-                            }
-                            navigate('/');
-                        }} />
+                        <input type="password" placeholder='Senha' onChange={(e) => setPassword(e.target.value)} value={password} />
                     </div>
 
                     <button
