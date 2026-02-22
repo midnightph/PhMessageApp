@@ -2,6 +2,7 @@ import { useState } from 'react'
 import '../App.css'
 import { login, loginWithGoogle, recoverPassword } from '../services/authService'
 import { useNavigate } from "react-router-dom";
+import { setupPresence } from '../services/presenceService';
 
 function Login() {
     const navigate = useNavigate();
@@ -41,6 +42,7 @@ function Login() {
                                 setError(result.error);
                                 return;
                             }
+                            setupPresence();
                             navigate('/');
                         }}
                     >

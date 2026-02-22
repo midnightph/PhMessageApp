@@ -12,6 +12,8 @@ import {
 } from "../../services/conversationService";
 import { FaSignOutAlt, FaUserCircle } from "react-icons/fa";
 import { motion, AnimatePresence } from "framer-motion";
+import { setupPresence } from "../../services/presenceService";
+import { getDatabase, ref, onValue } from "firebase/database";
 
 function Home() {
   const navigate = useNavigate();
@@ -27,6 +29,29 @@ function Home() {
   const [isLoadingMessages, setIsLoadingMessages] = useState(true);
   const isLoadingMoreRef = useRef(false);
   const messagesContainerRef = useRef(null);
+  const [otherUserStatus, setOtherUserStatus] = useState({
+    state: "offline",
+  });
+
+  useEffect(() => {
+    if (!activeConversation || !user) return;
+
+    const otherUid = activeConversation.participants.find(
+      uid => uid !== user.uid
+    );
+
+    if (!otherUid) return;
+
+    const database = getDatabase();
+    const statusRef = ref(database, `status/${otherUid}`);
+
+    const unsubscribe = onValue(statusRef, (snapshot) => {
+      const data = snapshot.val();
+      setOtherUserStatus(data);
+    });
+
+    return () => unsubscribe();
+  }, [activeConversation, user]);
 
   // LOGIN
   useEffect(() => {
@@ -35,6 +60,8 @@ function Home() {
         navigate("/login");
         return;
       }
+
+      setupPresence();
 
       setUser(currentUser);
       const userData = await getUserData(currentUser.uid);
@@ -205,15 +232,19 @@ function Home() {
         ) : (
           <>
             <div className="chat-header">
-              <h3>
-                {activeConversation
-                  ? activeConversation.participantsInfo[
+              <div className="chat-header-info">
+                <h3>
+                  {activeConversation.participantsInfo[
                     activeConversation.participants.find(
                       (uid) => uid !== user.uid
                     )
-                  ]?.name
-                  : "Selecione uma conversa"}
-              </h3>
+                  ]?.name}
+                </h3>
+
+                <span className={`status ${otherUserStatus.state}`}>
+                  {otherUserStatus.state === "online" ? "Online" : `Visto por último às ${new Date(otherUserStatus.lastChanged).toLocaleTimeString()}`}
+                </span>
+              </div>
             </div>
 
             {!isLoadingMessages ? (

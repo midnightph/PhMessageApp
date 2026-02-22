@@ -5,6 +5,7 @@ import { useEffect, useState } from "react";
 import { getUserData, updateUserName, handlePhotoChange } from "../../services/profileService";
 import { auth } from "../../services/firebase";
 import { onAuthStateChanged } from "firebase/auth";
+import { setupPresence } from "../../services/presenceService";
 
 export default function Profile() {
 
@@ -19,6 +20,7 @@ export default function Profile() {
     useEffect(() => {
         const unsubscribe = onAuthStateChanged(auth, async (user) => {
             if (user) {
+                setupPresence();
                 try {
                     const docSnap = await getUserData(user);
                     if (docSnap.exists()) {
@@ -92,7 +94,7 @@ export default function Profile() {
 
                 <div className="photo-wrapper">
                     {isLoadingPhoto ? (
-                        <div className="profile-image" style={{display: 'flex', alignItems: 'center', justifyContent: 'center'}}>
+                        <div className="profile-image" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                             <div className="spinner"></div>
                         </div>
                     ) : (<img src={data.photo} alt="Foto de perfil" className="profile-image" />)}

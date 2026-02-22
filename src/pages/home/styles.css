@@ -78,6 +78,23 @@
   align-self: flex-start;
 }
 
+.chat-header-info {
+  display: flex;
+  flex-direction: column;
+}
+
+.status {
+  font-size: 13px;
+}
+
+.status.online {
+  color: #00ff88;
+}
+
+.status.offline {
+  color: #888;
+}
+
 .message.sent {
   background: linear-gradient(90deg, #6366f1, #8b5cf6);
   align-self: flex-end;
