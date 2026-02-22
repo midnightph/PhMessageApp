@@ -10,7 +10,8 @@ import {
   doc,
   limit,
   startAfter,
-  getDocs, where
+  getDocs, where,
+  getDoc
 } from "firebase/firestore";
 import { auth } from "./firebase";
 
@@ -114,4 +115,50 @@ export async function sendMessage(id, message) {
     lastMessage: preview,
     lastMessageSender: user.uid
   });
+}
+
+export async function createChatWithDev(uid) {
+
+  const DEV_UID = "Z5PzjD2qDgTuWZqYxpq4KwKz6K23";
+
+  const q = query(
+    collection(db, "conversations"),
+    where("participants", "array-contains", uid)
+  );
+
+  const snap = await getDocs(q);
+
+  const existing = snap.docs.find(doc =>
+    doc.data().participants.includes(DEV_UID)
+  );
+
+  if (existing) {
+    return existing.id;
+  }
+
+  const userRef = doc(db, "users", uid);
+  const userSnap = await getDoc(userRef);
+
+  const devRef = doc(db, "users", DEV_UID);
+  const devSnap = await getDoc(devRef);
+
+  const newConv = {
+    participants: [uid, DEV_UID],
+    createdAt: serverTimestamp(),
+    updatedAt: serverTimestamp(),
+    lastMessage: "",
+    lastMessageSender: uid,
+    participantsInfo: {
+      [uid]: {
+        name: userSnap.data()?.name || "Usuário",
+        photo: userSnap.data()?.photo || "https://i.pravatar.cc/150?img=1"
+      },
+      [DEV_UID]: {
+        name: "Desenvolvedor",
+        photo: devSnap.data()?.photo || "https://i.pravatar.cc/150?img=2"
+      }
+    }
+  };
+
+  await addDoc(collection(db, "conversations"), newConv);
 }

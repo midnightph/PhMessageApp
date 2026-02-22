@@ -1,6 +1,6 @@
 import './messageSideBar.css'
 import { useEffect, useState } from "react";
-import { getUserConversations } from "../services/conversationService";
+import { getUserConversations, createChatWithDev } from "../services/conversationService";
 import { auth } from "../services/firebase";
 
 export function MessageSideBar({ onSelectConversation }) {
@@ -28,10 +28,15 @@ export function MessageSideBar({ onSelectConversation }) {
         </div>
     );
     if (conversations === undefined) return null;
-    if (conversations.length === 0) return <p className="no-conversations">Você não tem nenhuma conversa</p>;
 
     return (
         <div className="chat-list">
+            {conversations.length === 0 && (
+                <p className="no-conversations">
+                    Você não tem nenhuma conversa
+                </p>
+            )}
+
             {conversations.map((conv) => {
                 const currentUser = auth.currentUser;
                 const otherUid = conv.participants.find(
@@ -56,6 +61,30 @@ export function MessageSideBar({ onSelectConversation }) {
                     </div>
                 );
             })}
+            <div className="talk-to-dev">
+                <div
+                    className="dev-card"
+                    onClick={async () => {
+                        const user = auth.currentUser;
+                        if (!user) return;
+
+                        const convId = await createChatWithDev(user.uid);
+
+                        // encontra a conversa na lista atual
+                        const existingConv = conversations.find(c => c.id === convId);
+
+                        if (existingConv) {
+                            onSelectConversation(existingConv);
+                        }
+                    }}
+                >
+                    <div className="dev-avatar">DEV</div>
+                    <div className="dev-text">
+                        <strong>Ninguém pra falar?</strong>
+                        <span>Teste o chat com o dev</span>
+                    </div>
+                </div>
+            </div>
         </div>
     );
 }
