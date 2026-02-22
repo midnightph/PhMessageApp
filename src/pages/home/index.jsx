@@ -10,7 +10,7 @@ import {
   sendMessage,
   listenNewMessages
 } from "../../services/conversationService";
-import { FaSignOutAlt, FaUserCircle } from "react-icons/fa";
+import { FaSignOutAlt, FaUserCircle, FaInfoCircle } from "react-icons/fa";
 import { motion, AnimatePresence } from "framer-motion";
 import { setupPresence } from "../../services/presenceService";
 import { getDatabase, ref, onValue } from "firebase/database";
@@ -255,6 +255,7 @@ function Home() {
           <>
             <div className="chat-header">
               <div className="chat-header-info">
+                <div>
                 <h3>
                   {activeConversation.participantsInfo[
                     activeConversation.participants.find(
@@ -268,6 +269,8 @@ function Home() {
                     ? "Online"
                     : formatLastSeen(otherUserStatus?.lastChanged)}
                 </span>
+                </div>
+                <FaInfoCircle style={{ marginLeft: "10px" }} />
               </div>
             </div>
 
