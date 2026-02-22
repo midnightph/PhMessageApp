@@ -180,18 +180,40 @@ function Home() {
     }
   }
 
-  const listVariants = {
-    visible: {
-      transition: {
-        staggerChildren: 0.05,
-      },
-    },
-  };
+  function formatLastSeen(timestamp) {
+    if (!timestamp) return "Offline";
 
-  const itemVariants = {
-    hidden: { opacity: 0, y: 20 },
-    visible: { opacity: 1, y: 0 },
-  };
+    const lastDate = new Date(timestamp);
+    const now = new Date();
+
+    const isToday =
+      lastDate.toDateString() === now.toDateString();
+
+    const yesterday = new Date();
+    yesterday.setDate(now.getDate() - 1);
+
+    const isYesterday =
+      lastDate.toDateString() === yesterday.toDateString();
+
+    if (isToday) {
+      return `Visto por último às ${lastDate.toLocaleTimeString([], {
+        hour: "2-digit",
+        minute: "2-digit",
+      })}`;
+    }
+
+    if (isYesterday) {
+      return `Visto ontem às ${lastDate.toLocaleTimeString([], {
+        hour: "2-digit",
+        minute: "2-digit",
+      })}`;
+    }
+
+    return `Visto em ${lastDate.toLocaleDateString()} às ${lastDate.toLocaleTimeString([], {
+      hour: "2-digit",
+      minute: "2-digit",
+    })}`;
+  }
 
   if (user === undefined) return null;
   if (!user || !data) return null;
@@ -241,8 +263,10 @@ function Home() {
                   ]?.name}
                 </h3>
 
-                <span className={`status ${otherUserStatus.state}`}>
-                  {otherUserStatus.state === "online" ? "Online" : `Visto por último às ${new Date(otherUserStatus.lastChanged).toLocaleTimeString()}`}
+                <span className={`status ${otherUserStatus?.state}`}>
+                  {otherUserStatus?.state === "online"
+                    ? "Online"
+                    : formatLastSeen(otherUserStatus?.lastChanged)}
                 </span>
               </div>
             </div>
