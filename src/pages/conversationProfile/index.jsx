@@ -170,19 +170,23 @@ export default function ConversationProfile() {
                             </div>
                         )}
 
-                        {!loadingMedia && (selectedType === "image" || selectedType === "video") && (
+                        {!loadingMedia && selectedType === "image" && (
                             <div className="media-grid">
                                 {mediaMessages.map(msg => (
                                     <div key={msg.id} className="media-item">
-                                        {msg.type === "image" && (
-                                            <img src={msg.fileUrl} alt="" />
-                                        )}
+                                        <img src={msg.fileUrl} alt="" />
+                                    </div>
+                                ))}
+                            </div>
+                        )}
 
-                                        {msg.type === "video" && (
-                                            <video muted playsInline>
-                                                <source src={msg.fileUrl} />
-                                            </video>
-                                        )}
+                        {!loadingMedia && selectedType === "video" && (
+                            <div className="video-grid">
+                                {mediaMessages.map(msg => (
+                                    <div key={msg.id} className="media-item">
+                                        <video controls>
+                                            <source src={msg.fileUrl} />
+                                        </video>
                                     </div>
                                 ))}
                             </div>
