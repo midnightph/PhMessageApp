@@ -8,9 +8,10 @@ import { MessageSideBar } from "../../components/messageSideBar";
 import {
   getMessagesPage,
   sendMessage,
-  listenNewMessages
+  listenNewMessages,
+  sendFileMessage
 } from "../../services/conversationService";
-import { FaSignOutAlt, FaUserCircle, FaInfoCircle } from "react-icons/fa";
+import { FaSignOutAlt, FaUserCircle, FaInfoCircle, FaFolderPlus } from "react-icons/fa";
 import { motion, AnimatePresence } from "framer-motion";
 import { setupPresence } from "../../services/presenceService";
 import { getDatabase, ref, onValue } from "firebase/database";
@@ -32,6 +33,8 @@ function Home() {
   const [otherUserStatus, setOtherUserStatus] = useState({
     state: "offline",
   });
+  const fileInputRef = useRef(null);
+  const [isLoadingSendFile, setIsLoadingSendFile] = useState(false);
 
   useEffect(() => {
     if (!activeConversation || !user) return;
@@ -270,7 +273,7 @@ function Home() {
                       : formatLastSeen(otherUserStatus?.lastChanged)}
                   </span>
                 </div>
-                <div onClick={() => navigate('/conversationProfile', {state: {conversation: activeConversation.id}})} style={{ cursor: "pointer", display: "flex", alignItems: "center", padding: "5px", borderRadius: "5px", transition: "background-color 0.2s" }}>
+                <div onClick={() => navigate('/conversationProfile', { state: { conversation: activeConversation.id } })} style={{ cursor: "pointer", display: "flex", alignItems: "center", padding: "5px", borderRadius: "5px", transition: "background-color 0.2s" }}>
                   <FaInfoCircle style={{ marginLeft: "10px" }} size={15} />
                 </div>
               </div>
@@ -290,13 +293,34 @@ function Home() {
                       className={`message ${message.senderId === user.uid
                         ? "sent"
                         : "received"
-                        }`}
+                        } ${message.type === 'image' ? "has-image" : null} ${message.type === 'video' ? "has-video" : null}`}
                       initial={{ opacity: 0, y: 20 }}
                       animate={{ opacity: 1, y: 0 }}
                       exit={{ opacity: 0, y: -20 }}
                       transition={{ duration: 0.25 }}
                     >
-                      <p>{message.text}</p>
+                      {!message.type && <p>{message.text}</p>}
+                      {message.type === "text" && <p>{message.text}</p>}
+
+                      {message.type === "image" && (
+                        <img
+                          src={message.fileUrl}
+                          alt="imagem"
+                          style={{ maxWidth: "200px", borderRadius: "10px" }}
+                        />
+                      )}
+
+                      {message.type === "video" && (
+                        <video controls width="550" style={{borderRadius: '10px'}}>
+                          <source src={message.fileUrl} />
+                        </video>
+                      )}
+
+                      {message.type === "file" && (
+                        <a href={message.fileUrl} target="_blank" rel="noreferrer">
+                          📎 {message.fileName}
+                        </a>
+                      )}
                     </motion.div>
                   ))}
                 </AnimatePresence>
@@ -307,6 +331,22 @@ function Home() {
             )}
 
             <div className="message-input">
+              <div className="folder-icon" onClick={() => fileInputRef.current.click()}>
+                {isLoadingSendFile ? <div className="loading-container-image"><div className="spinner-image"></div></div> : <FaFolderPlus style={{ margin: "10px", cursor: "pointer" }} size={20} />}
+              </div>
+              <input
+                type="file"
+                ref={fileInputRef}
+                style={{ display: "none" }}
+                onChange={async (e) => {
+                  const file = e.target.files[0];
+                  setIsLoadingSendFile(true);
+                  if (file) {
+                    await sendFileMessage(activeConversation.id, file);
+                  }
+                  setIsLoadingSendFile(false);
+                }}
+              />
               <input
                 ref={inputRef}
                 placeholder="Digite uma mensagem..."

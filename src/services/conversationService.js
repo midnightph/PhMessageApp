@@ -14,6 +14,8 @@ import {
   getDoc
 } from "firebase/firestore";
 import { auth } from "./firebase";
+import { storage } from "./firebase";
+import { ref, getDownloadURL, uploadBytes } from "firebase/storage";
 
 const PAGE_SIZE = 20;
 
@@ -55,7 +57,7 @@ export async function getMessagesPage(conversationId, lastDoc = null) {
   }
 
   const snapshot = await getDocs(q);
-
+  
   const messages = snapshot.docs.map(doc => ({
     id: doc.id,
     ...doc.data()
@@ -95,6 +97,7 @@ export async function sendMessage(id, message) {
   if (!trimmed) return;
 
   const messageContent = {
+    type: "text",
     text: trimmed,
     sendAt: serverTimestamp(),
     senderId: user.uid
@@ -161,4 +164,40 @@ export async function createChatWithDev(uid) {
   };
 
   await addDoc(collection(db, "conversations"), newConv);
+}
+
+export async function sendFileMessage(conversationId, file) {
+  if (!file) return;
+
+  const user = auth.currentUser;
+
+  // 1. cria caminho único
+  const storageRef = ref(
+    storage,
+    `conversations/${conversationId}/${Date.now()}_${file.name}`
+  );
+
+  // 2. upload
+  const snapshot = await uploadBytes(storageRef, file);
+
+  // 3. pega url pública
+  const downloadURL = await getDownloadURL(snapshot.ref);
+
+  // 4. detectar tipo
+  let type = "file";
+  if (file.type.startsWith("image")) type = "image";
+  else if (file.type.startsWith("video")) type = "video";
+
+  // 5. salvar mensagem no Firestore
+  await addDoc(
+    collection(db, "conversations", conversationId, "messages"),
+    {
+      type,
+      fileUrl: downloadURL,
+      fileName: file.name,
+      fileSize: file.size,
+      senderId: user.uid,
+      sendAt: serverTimestamp()
+    }
+  );
 }
