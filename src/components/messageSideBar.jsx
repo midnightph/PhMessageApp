@@ -3,7 +3,7 @@ import { useEffect, useState } from "react";
 import { getUserConversations, createChatWithDev } from "../services/conversationService";
 import { auth } from "../services/firebase";
 
-export function MessageSideBar({ onSelectConversation }) {
+export function MessageSideBar({ onSelectConversation, selectModal }) {
     const [conversations, setConversations] = useState(undefined);
     const [isLoading, setIsLoading] = useState(true);
 
@@ -62,7 +62,7 @@ export function MessageSideBar({ onSelectConversation }) {
                 );
             })}
             <div className='add-new-conversation'>
-                <button onClick={() => onSelectConversation(null)}>
+                <button onClick={() => {onSelectConversation(null); selectModal(true)}}>
                     + Nova Conversa
                 </button>
             </div>

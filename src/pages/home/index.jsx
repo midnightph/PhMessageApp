@@ -15,6 +15,7 @@ import { FaSignOutAlt, FaUserCircle, FaInfoCircle, FaFolderPlus } from "react-ic
 import { motion, AnimatePresence } from "framer-motion";
 import { setupPresence } from "../../services/presenceService";
 import { getDatabase, ref, onValue } from "firebase/database";
+import { createConversation } from "../../services/conversationService";
 
 function Home() {
   const navigate = useNavigate();
@@ -35,6 +36,8 @@ function Home() {
   });
   const fileInputRef = useRef(null);
   const [isLoadingSendFile, setIsLoadingSendFile] = useState(false);
+  const [selectModal, setSelectModal] = useState(false);
+  const [email, setEmail] = useState("");
 
   useEffect(() => {
     if (!activeConversation || !user) return;
@@ -246,7 +249,7 @@ function Home() {
             </button>
           </div>
         </div>
-        <MessageSideBar onSelectConversation={setActiveConversation} />
+        <MessageSideBar onSelectConversation={setActiveConversation} selectModal={setSelectModal} />
       </div>
 
       <div className="chat-area">
@@ -311,7 +314,7 @@ function Home() {
                       )}
 
                       {message.type === "video" && (
-                        <video controls width="550" style={{borderRadius: '10px'}}>
+                        <video controls width="550" style={{ borderRadius: '10px' }}>
                           <source src={message.fileUrl} />
                         </video>
                       )}
@@ -380,6 +383,38 @@ function Home() {
           </>
         )}
       </div>
+
+      {selectModal && (
+        <div className="modal-overlay">
+          <div
+            className="modal-content"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <h3>Nova Conversa</h3>
+
+            <input
+              type="text"
+              placeholder="Digite o email do usuário"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+            />
+
+            <div className="modal-actions">
+              <button onClick={() => {setSelectModal(false); setEmail("")}}>
+                Cancelar
+              </button>
+
+              <button onClick={() => {
+                createConversation(email);
+                setSelectModal(false);
+                setEmail("");
+              }}>
+                Criar
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

@@ -57,7 +57,7 @@ export async function getMessagesPage(conversationId, lastDoc = null) {
   }
 
   const snapshot = await getDocs(q);
-  
+
   const messages = snapshot.docs.map(doc => ({
     id: doc.id,
     ...doc.data()
@@ -120,6 +120,71 @@ export async function sendMessage(id, message) {
   });
 }
 
+export async function createConversation(participantEmail) {
+  const user = auth.currentUser;
+  if (!user) return;
+
+  const q = query(
+    collection(db, "users"),
+    where("email", "==", participantEmail)
+  );
+
+  const snap = await getDocs(q);
+
+  if (snap.docs.length === 0) return alert("Usuário não encontrado!");
+  const docSnap = snap.docs[0];
+  const data = docSnap.data();
+  const participantUid = docSnap.id;
+
+  if (participantUid === user.uid) {
+    alert("Você não pode criar uma conversa consigo mesmo!");
+    return;
+  }
+
+  const userRef = doc(db, "users", user.uid);
+  const userSnap = await getDoc(userRef);
+
+  if (!userSnap.exists()) return;
+
+  const userDoc = userSnap.data();
+
+  const existing = await getChat(user.uid, participantUid);
+  if (existing) return alert("Conversa já existe!");
+
+  const newConv = {
+    participants: [user.uid, participantUid],
+    createdAt: serverTimestamp(),
+    updatedAt: serverTimestamp(),
+    lastMessage: "",
+    lastMessageSender: user.uid,
+    participantsInfo: {
+      [user.uid]: {
+        name: userDoc.name || "Usuário",
+        photo: userDoc.photo || "https://i.pravatar.cc/150?img=1"
+      },
+      [participantUid]: {
+        name: data.name || "Usuário",
+        photo: data.photo || "https://i.pravatar.cc/150?img=2"
+      }
+    }
+  };
+
+  const docRef = await addDoc(collection(db, "conversations"), newConv);
+  return docRef.id;
+}
+
+export async function getChat(uid1, uid2) {
+  const q = query(
+    collection(db, "conversations"),
+    where("participants", "array-contains", uid1)
+  );
+
+  const snap = await getDocs(q);
+  return snap.docs.find(doc =>
+    doc.data().participants.includes(uid2)
+  );
+}
+
 export async function createChatWithDev(uid) {
 
   const DEV_UID = "Z5PzjD2qDgTuWZqYxpq4KwKz6K23";
@@ -169,7 +234,7 @@ export async function createChatWithDev(uid) {
 export async function sendFileMessage(conversationId, file) {
   if (!file) return;
 
-  if(file.size > 10 * 1024 * 1024) {
+  if (file.size > 10 * 1024 * 1024) {
     alert("Arquivo muito grande! Máximo permitido: 10MB");
     return;
   }
