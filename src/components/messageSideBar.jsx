@@ -61,6 +61,11 @@ export function MessageSideBar({ onSelectConversation }) {
                     </div>
                 );
             })}
+            <div className='add-new-conversation'>
+                <button onClick={() => onSelectConversation(null)}>
+                    + Nova Conversa
+                </button>
+            </div>
             <div className="talk-to-dev">
                 <div
                     className="dev-card"
