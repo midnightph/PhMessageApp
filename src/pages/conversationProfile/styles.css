@@ -74,3 +74,120 @@
   border-radius: 50%;
   object-fit: cover;
 }
+
+.chat-area {
+  width: 100%;
+  background: #1e293b;
+  padding: 20px;
+  border-radius: 16px;
+  color: white;
+  display: flex;
+  flex-direction: column;
+}
+
+.media-content {
+  margin-top: 15px;
+  overflow-y: auto;
+  max-height: 800px;
+}
+
+/* Media grid for images and videos - 4 column layout */
+.media-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 10px;
+  width: 100%;
+}
+
+/* Individual grid item for images/videos */
+.media-grid .media-item {
+  width: 100%;
+  aspect-ratio: 1;
+  overflow: hidden;
+  border-radius: 8px;
+  cursor: pointer;
+  background: #334155;
+}
+
+.media-grid .media-item img,
+.media-grid .media-item video {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 8px;
+  display: block;
+}
+
+/* Files list - no grid, vertical list layout */
+.files-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  width: 100%;
+}
+
+.files-list .media-item {
+  padding: 12px;
+  background: #334155;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+}
+
+.files-list .media-item a {
+  color: #e2e8f0;
+  text-decoration: none;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  word-break: break-all;
+}
+
+.files-list .media-item a:hover {
+  color: #6366f1;
+}
+
+.profile-layout {
+  display: flex;
+  gap: 30px;
+}
+
+.media-panel {
+  width: 350px;
+  background: #1e293b;
+  padding: 20px;
+  border-radius: 16px;
+  color: white;
+}
+
+.media-selector {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 20px;
+}
+
+.media-selector button {
+  flex: 1;
+  padding: 8px;
+  border: none;
+  cursor: pointer;
+  background: #334155;
+  color: white;
+  border-radius: 8px;
+}
+
+.media-selector button.active {
+  background: #6366f1;
+}
+
+.media-item {
+  margin-bottom: 15px;
+}
+
+.media-item img {
+  width: 150px;
+  height: 150px;
+  object-fit: cover;
+  border-radius: 8px;
+  cursor: pointer;
+}

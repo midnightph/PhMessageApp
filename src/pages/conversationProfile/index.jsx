@@ -2,14 +2,47 @@ import { useEffect, useState } from "react";
 import "./styles.css";
 import { useLocation } from "react-router-dom";
 import { doc, getDoc } from "firebase/firestore";
-import { db } from "../../services/firebase";
+import { auth, db } from "../../services/firebase";
 import { FaArrowLeft } from "react-icons/fa";
+import { collection, query, where, getDocs, orderBy } from "firebase/firestore";
 
 export default function ConversationProfile() {
     const location = useLocation();
     const conversationId = location.state?.conversation;
     const [isLoading, setIsLoading] = useState(true);
     const [conversationDetails, setConversationDetails] = useState(null);
+
+    const [selectedType, setSelectedType] = useState("image");
+    const [mediaMessages, setMediaMessages] = useState([]);
+    const [loadingMedia, setLoadingMedia] = useState(false);
+
+    async function fetchMedia(type) {
+        if (!conversationId) return;
+
+        setLoadingMedia(true);
+
+        try {
+            const q = query(
+                collection(db, "conversations", conversationId, "messages"),
+                where("type", "==", type),
+                orderBy("sendAt", "desc")
+            );
+
+            const snap = await getDocs(q);
+            console.log("Media messages snap:", snap);
+
+            const results = snap.docs.map(doc => ({
+                id: doc.id,
+                ...doc.data()
+            }));
+
+            setMediaMessages(results);
+        } catch (err) {
+            console.error(err);
+        } finally {
+            setLoadingMedia(false);
+        }
+    }
 
     useEffect(() => {
         if (!conversationId) return;
@@ -31,6 +64,10 @@ export default function ConversationProfile() {
 
         fetchConversationDetails();
     }, [conversationId]);
+
+    useEffect(() => {
+        fetchMedia(selectedType);
+    }, [selectedType]);
 
     function formatDate(timestamp) {
         if (!timestamp?.seconds) return "-";
@@ -54,7 +91,7 @@ export default function ConversationProfile() {
         <div className="chat-container">
             <div className="profile-card">
                 <div className="header">
-                    <FaArrowLeft className="back-button" onClick={() => window.history.back()} size={20}/>
+                    <FaArrowLeft className="back-button" onClick={() => window.history.back()} size={20} />
                     <h2>Perfil da Conversa</h2>
                 </div>
 
@@ -86,11 +123,76 @@ export default function ConversationProfile() {
                             <div key={uid} className="participant-card">
                                 <img src={user.photo} alt={user.name} />
                                 <div>
-                                    <strong>{user.name}</strong>
+                                    <strong>{uid === auth.currentUser.uid ? user.name + " (você)" : user.name}</strong>
                                 </div>
                             </div>
                         )
                     )}
+                </div>
+            </div>
+            <div className="chat-area">
+                <div className="media-tabs">
+                    <div className="media-selector">
+                        <button
+                            className={selectedType === "image" ? "active" : ""}
+                            onClick={() => setSelectedType("image")}
+                        >
+                            Imagens
+                        </button>
+
+                        <button
+                            className={selectedType === "video" ? "active" : ""}
+                            onClick={() => setSelectedType("video")}
+                        >
+                            Vídeos
+                        </button>
+
+                        <button
+                            className={selectedType === "file" ? "active" : ""}
+                            onClick={() => setSelectedType("file")}
+                        >
+                            Arquivos
+                        </button>
+                    </div>
+                    <div className="media-content">
+
+                        {loadingMedia && <p>Carregando...</p>}
+
+                        {!loadingMedia && selectedType === "file" && (
+                            <div className="files-list">
+                                {mediaMessages.map(msg => (
+                                    <div key={msg.id} className="media-item">
+                                        <a href={msg.fileUrl} target="_blank" rel="noreferrer">
+                                            📎 {msg.fileName}
+                                        </a>
+                                    </div>
+                                ))}
+                            </div>
+                        )}
+
+                        {!loadingMedia && (selectedType === "image" || selectedType === "video") && (
+                            <div className="media-grid">
+                                {mediaMessages.map(msg => (
+                                    <div key={msg.id} className="media-item">
+                                        {msg.type === "image" && (
+                                            <img src={msg.fileUrl} alt="" />
+                                        )}
+
+                                        {msg.type === "video" && (
+                                            <video muted playsInline>
+                                                <source src={msg.fileUrl} />
+                                            </video>
+                                        )}
+                                    </div>
+                                ))}
+                            </div>
+                        )}
+
+                        {!loadingMedia && mediaMessages.length === 0 && (
+                            <p>Nenhum item encontrado</p>
+                        )}
+
+                    </div>
                 </div>
             </div>
         </div>
