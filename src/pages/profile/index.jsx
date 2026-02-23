@@ -83,7 +83,7 @@ export default function Profile() {
         <div className="chat-container">
             <div className="sidebar">
                 <div className="sidebar-header-profile">
-                    <FaArrowLeft size={22} onClick={() => navigate('/')} />
+                    <FaArrowLeft size={22} onClick={() => window.history.back()} />
                     <h1 style={{ fontSize: '26px' }} className="title">Perfil</h1>
                 </div>
 

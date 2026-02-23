@@ -270,7 +270,7 @@ function Home() {
                       : formatLastSeen(otherUserStatus?.lastChanged)}
                   </span>
                 </div>
-                <div onClick={() => navigate('/conversationProfile')} style={{ cursor: "pointer", display: "flex", alignItems: "center", padding: "5px", borderRadius: "5px", transition: "background-color 0.2s" }}>
+                <div onClick={() => navigate('/conversationProfile', {state: {conversation: activeConversation.id}})} style={{ cursor: "pointer", display: "flex", alignItems: "center", padding: "5px", borderRadius: "5px", transition: "background-color 0.2s" }}>
                   <FaInfoCircle style={{ marginLeft: "10px" }} size={15} />
                 </div>
               </div>

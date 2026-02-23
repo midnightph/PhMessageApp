@@ -1,0 +1,76 @@
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 20px;
+  position: relative;
+}
+
+.header h2 {
+  margin: 0;
+  top: 50%;
+}
+
+.back-button {
+  position: absolute;
+  left: 0;
+  transform: translateY(-50%);
+  cursor: pointer;
+  margin-bottom: 0px;
+}
+
+.profile-card {
+  width: 500px;
+  background: #1e293b;
+  padding: 30px;
+  border-radius: 16px;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.4);
+  color: white;
+}
+
+.profile-card h2 {
+  margin-bottom: 20px;
+}
+
+.info-group {
+  display: flex;
+  flex-direction: column;
+  margin-bottom: 15px;
+}
+
+.info-group label {
+  font-size: 12px;
+  opacity: 0.6;
+  margin-bottom: 4px;
+}
+
+.info-group span {
+  font-size: 14px;
+  word-break: break-all;
+}
+
+.participants {
+  margin-top: 25px;
+}
+
+.participants h3 {
+  margin-bottom: 10px;
+  font-size: 16px;
+}
+
+.participant-card {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px;
+  background: #334155;
+  border-radius: 10px;
+  margin-bottom: 10px;
+}
+
+.participant-card img {
+  width: 45px;
+  height: 45px;
+  border-radius: 50%;
+  object-fit: cover;
+}
