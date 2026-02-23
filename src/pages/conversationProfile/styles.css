@@ -20,8 +20,8 @@
 }
 
 .profile-card {
-  width: 500px;
-  background: #1e293b;
+  width: 30%;
+  background: rgba(0, 0, 0, 0.308);
   padding: 30px;
   border-radius: 16px;
   box-shadow: 0 10px 40px rgba(0, 0, 0, 0.4);

@@ -39,6 +39,20 @@ function Home() {
   const [selectModal, setSelectModal] = useState(false);
   const [email, setEmail] = useState("");
 
+  const [isPhone, setIsPhone] = useState(window.innerWidth < 426);
+
+  useEffect(() => {
+    function handleResize() {
+      setIsPhone(window.innerWidth < 426);
+    }
+
+    window.addEventListener("resize", handleResize);
+
+    return () => {
+      window.removeEventListener("resize", handleResize);
+    };
+  }, []);
+
   useEffect(() => {
     if (!activeConversation || !user) return;
 
@@ -234,158 +248,248 @@ function Home() {
 
   return (
     <div className="chat-container">
-      <div className="sidebar">
+      {/* SIDEBAR */}
+      <div
+        className={`sidebar ${activeConversation ? "mobile-hidden" : ""
+          }`}
+      >
         <div className="sidebar-header">
           <h3>{data.name || data.email}</h3>
           <div className="header">
-            <button className="logout-button" style={{ backgroundColor: 'rgba(255, 255, 255, 0.47)' }} onClick={() => navigate('/profile')}>
+            <button
+              className="logout-button"
+              style={{ backgroundColor: "rgba(255,255,255,0.47)" }}
+              onClick={() => navigate("/profile")}
+            >
               <FaUserCircle />
             </button>
-            <button className="logout-button" onClick={() => {
-              auth.signOut()
-              navigate('/login')
-            }}>
+            <button
+              className="logout-button"
+              onClick={() => {
+                auth.signOut();
+                navigate("/login");
+              }}
+            >
               <FaSignOutAlt />
             </button>
           </div>
         </div>
-        <MessageSideBar onSelectConversation={setActiveConversation} selectModal={setSelectModal} />
+
+        <MessageSideBar
+          onSelectConversation={setActiveConversation}
+          selectModal={setSelectModal}
+        />
       </div>
 
-      <div className="chat-area">
-        {!activeConversation ? (
-          <div className="no-chat-selected">
-            <p>Ainda nada aqui</p>
-          </div>
-        ) : (
-          <>
-            <div className="chat-header">
-              <div className="chat-header-info">
-                <div>
-                  <h3>
-                    {activeConversation.participantsInfo[
-                      activeConversation.participants.find(
-                        (uid) => uid !== user.uid
-                      )
-                    ]?.name}
-                  </h3>
+      {/* CHAT AREA */}
 
-                  <span className={`status ${otherUserStatus?.state}`}>
-                    {otherUserStatus?.state === "online"
-                      ? "Online"
-                      : formatLastSeen(otherUserStatus?.lastChanged)}
-                  </span>
-                </div>
-                <div onClick={() => navigate('/conversationProfile', { state: { conversation: activeConversation.id } })} style={{ cursor: "pointer", display: "flex", alignItems: "center", padding: "5px", borderRadius: "5px", transition: "background-color 0.2s" }}>
-                  <FaInfoCircle style={{ marginLeft: "10px" }} size={15} />
-                </div>
-              </div>
+      {(!isPhone || activeConversation) && (
+        <div className="chat-area">
+          {!activeConversation && !isPhone && (
+            <div className="no-chat-selected">
+              <p>Ainda nada aqui</p>
             </div>
+          )}
+          {activeConversation && (
+            <>
+              <div className="chat-header">
+                <div className="chat-header-info">
+                  <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+                    <div style={{ display: 'flex', flexDirection: 'row' }}>
+                      {isPhone && (<button
+                        className="back-button-phone"
+                        onClick={() => setActiveConversation(null)}
+                      >
+                        ←
+                      </button>)}
+                      <div>
+                        <h3>
+                          {
+                            activeConversation.participantsInfo[
+                              activeConversation.participants.find(
+                                (uid) => uid !== user.uid
+                              )
+                            ]?.name
+                          }
+                        </h3>
 
-            {!isLoadingMessages ? (
-              <div
-                className="messages"
-                ref={messagesContainerRef}
-                onScroll={handleScroll}
-              >
-                <AnimatePresence initial={false}>
-                  {messages.map((message) => (
-                    <motion.div
-                      layout
-                      key={message.id}
-                      className={`message ${message.senderId === user.uid
-                        ? "sent"
-                        : "received"
-                        } ${message.type === 'image' ? "has-image" : null} ${message.type === 'video' ? "has-video" : null}`}
-                      initial={{ opacity: 0, y: 20 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      exit={{ opacity: 0, y: -20 }}
-                      transition={{ duration: 0.25 }}
-                    >
-                      {!message.type && <p>{message.text}</p>}
-                      {message.type === "text" && <p>{message.text}</p>}
+                        <span
+                          className={`status ${otherUserStatus?.state}`}
+                        >
+                          {otherUserStatus?.state === "online"
+                            ? "Online"
+                            : formatLastSeen(
+                              otherUserStatus?.lastChanged
+                            )}
+                        </span>
+                      </div>
+                    </div>
+                  </div>
 
-                      {message.type === "image" && (
-                        <img
-                          src={message.fileUrl}
-                          alt="imagem"
-                          style={{ maxWidth: "200px", borderRadius: "10px" }}
-                        />
-                      )}
-
-                      {message.type === "video" && (
-                        <video controls width="550" style={{ borderRadius: '10px' }}>
-                          <source src={message.fileUrl} />
-                        </video>
-                      )}
-
-                      {message.type === "file" && (
-                        <a href={message.fileUrl} target="_blank" rel="noreferrer">
-                          📎 {message.fileName}
-                        </a>
-                      )}
-                    </motion.div>
-                  ))}
-                </AnimatePresence>
-              </div>) : (
-              <div className="loading-container">
-                <div className="spinner"></div>
+                  <div
+                    onClick={() =>
+                      navigate("/conversationProfile", {
+                        state: {
+                          conversation: activeConversation.id,
+                        },
+                      })
+                    }
+                    style={{
+                      cursor: "pointer",
+                      padding: "5px",
+                    }}
+                  >
+                    <FaInfoCircle size={16} />
+                  </div>
+                </div>
               </div>
-            )}
 
-            <div className="message-input">
-              <div className="folder-icon" onClick={() => fileInputRef.current.click()}>
-                {isLoadingSendFile ? <div className="loading-container-image"><div className="spinner-image"></div></div> : <FaFolderPlus style={{ margin: "10px", cursor: "pointer" }} size={20} />}
-              </div>
-              <input
-                type="file"
-                ref={fileInputRef}
-                style={{ display: "none" }}
-                onChange={async (e) => {
-                  const file = e.target.files[0];
-                  setIsLoadingSendFile(true);
-                  if (file) {
-                    await sendFileMessage(activeConversation.id, file);
+              {!isLoadingMessages ? (
+                <div
+                  className="messages"
+                  ref={messagesContainerRef}
+                  onScroll={handleScroll}
+                >
+                  <AnimatePresence initial={false}>
+                    {messages.map((message) => (
+                      <motion.div
+                        layout
+                        key={message.id}
+                        className={`message ${message.senderId === user.uid
+                          ? "sent"
+                          : "received"
+                          } ${message.type === "image"
+                            ? "has-image"
+                            : ""
+                          } ${message.type === "video"
+                            ? "has-video"
+                            : ""
+                          }`}
+                        initial={{ opacity: 0, y: 15 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        exit={{ opacity: 0 }}
+                        transition={{ duration: 0.2 }}
+                      >
+                        {message.type === "text" && (
+                          <p>{message.text}</p>
+                        )}
+
+                        {message.type === "image" && (
+                          <img
+                            src={message.fileUrl}
+                            alt="imagem"
+                            style={{
+                              width: "100%",
+                              maxWidth: "250px",
+                              borderRadius: "10px",
+                            }}
+                          />
+                        )}
+
+                        {message.type === "video" && (
+                          <video
+                            controls
+                            style={{
+                              width: "100%",
+                              maxWidth: "400px",
+                              borderRadius: "10px",
+                            }}
+                          >
+                            <source src={message.fileUrl} />
+                          </video>
+                        )}
+
+                        {message.type === "file" && (
+                          <a
+                            href={message.fileUrl}
+                            target="_blank"
+                            rel="noreferrer"
+                          >
+                            📎 {message.fileName}
+                          </a>
+                        )}
+                      </motion.div>
+                    ))}
+                  </AnimatePresence>
+                </div>
+              ) : (
+                <div className="loading-container">
+                  <div className="spinner"></div>
+                </div>
+              )}
+
+              <div className="message-input">
+                <div
+                  className="folder-icon"
+                  onClick={() =>
+                    fileInputRef.current.click()
                   }
-                  setIsLoadingSendFile(false);
-                }}
-              />
-              <input
-                ref={inputRef}
-                placeholder="Digite uma mensagem..."
-                type="text"
-                value={messageText}
-                onChange={(e) =>
-                  setMessageText(e.target.value)
-                }
-                onKeyDown={(e) => {
-                  if (e.key === "Enter") {
+                >
+                  {isLoadingSendFile ? (
+                    <div className="loading-container-image">
+                      <div className="spinner-image"></div>
+                    </div>
+                  ) : (
+                    <FaFolderPlus size={18} />
+                  )}
+                </div>
+
+                <input
+                  type="file"
+                  ref={fileInputRef}
+                  style={{ display: "none" }}
+                  onChange={async (e) => {
+                    const file = e.target.files[0];
+                    if (!file) return;
+                    setIsLoadingSendFile(true);
+                    await sendFileMessage(
+                      activeConversation.id,
+                      file
+                    );
+                    setIsLoadingSendFile(false);
+                  }}
+                />
+
+                <input
+                  ref={inputRef}
+                  placeholder="Digite uma mensagem..."
+                  value={messageText}
+                  onChange={(e) =>
+                    setMessageText(e.target.value)
+                  }
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter") {
+                      sendMessage(
+                        activeConversation.id,
+                        messageText
+                      );
+                      setMessageText("");
+                    }
+                  }}
+                />
+
+                <button
+                  onClick={() => {
                     sendMessage(
                       activeConversation.id,
                       messageText
                     );
                     setMessageText("");
-                  }
-                }}
-              />
-              <button
-                onClick={() => {
-                  sendMessage(
-                    activeConversation.id,
-                    messageText
-                  );
-                  setMessageText("");
-                }}
-              >
-                Enviar
-              </button>
-            </div>
-          </>
-        )}
-      </div>
+                  }}
+                >
+                  Enviar
+                </button>
+              </div>
+            </>
+          )}
+        </div>
+      )}
 
       {selectModal && (
-        <div className="modal-overlay">
+        <div
+          className="modal-overlay"
+          onClick={() => setSelectModal(false)}
+        >
           <div
             className="modal-content"
             onClick={(e) => e.stopPropagation()}
@@ -394,21 +498,28 @@ function Home() {
 
             <input
               type="text"
-              placeholder="Digite o email do usuário"
+              placeholder="Digite o email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
             />
 
             <div className="modal-actions">
-              <button onClick={() => {setSelectModal(false); setEmail("")}}>
+              <button
+                onClick={() => {
+                  setSelectModal(false);
+                  setEmail("");
+                }}
+              >
                 Cancelar
               </button>
 
-              <button onClick={() => {
-                createConversation(email);
-                setSelectModal(false);
-                setEmail("");
-              }}>
+              <button
+                onClick={() => {
+                  createConversation(email);
+                  setSelectModal(false);
+                  setEmail("");
+                }}
+              >
                 Criar
               </button>
             </div>

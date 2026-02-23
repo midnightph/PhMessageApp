@@ -6,23 +6,12 @@
 }
 
 body {
-  height: 100vh;
+  height: 100dvh;
   background: linear-gradient(135deg, #0f172a, #1e293b, #312e81);
   display: flex;
   justify-content: center;
   align-items: center;
   overflow: hidden;
-}
-
-/* Glow animado no fundo */
-body::before {
-  content: "";
-  position: absolute;
-  width: 600px;
-  height: 600px;
-  background: radial-gradient(circle, rgba(99,102,241,0.4), transparent 70%);
-  animation: float 6s ease-in-out infinite alternate;
-  filter: blur(100px);
 }
 
 @keyframes float {
