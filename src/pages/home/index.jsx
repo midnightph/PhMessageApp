@@ -256,21 +256,23 @@ function Home() {
             <div className="chat-header">
               <div className="chat-header-info">
                 <div>
-                <h3>
-                  {activeConversation.participantsInfo[
-                    activeConversation.participants.find(
-                      (uid) => uid !== user.uid
-                    )
-                  ]?.name}
-                </h3>
+                  <h3>
+                    {activeConversation.participantsInfo[
+                      activeConversation.participants.find(
+                        (uid) => uid !== user.uid
+                      )
+                    ]?.name}
+                  </h3>
 
-                <span className={`status ${otherUserStatus?.state}`}>
-                  {otherUserStatus?.state === "online"
-                    ? "Online"
-                    : formatLastSeen(otherUserStatus?.lastChanged)}
-                </span>
+                  <span className={`status ${otherUserStatus?.state}`}>
+                    {otherUserStatus?.state === "online"
+                      ? "Online"
+                      : formatLastSeen(otherUserStatus?.lastChanged)}
+                  </span>
                 </div>
-                <FaInfoCircle style={{ marginLeft: "10px" }} />
+                <div onClick={() => navigate('/conversationProfile')} style={{ cursor: "pointer", display: "flex", alignItems: "center", padding: "5px", borderRadius: "5px", transition: "background-color 0.2s" }}>
+                  <FaInfoCircle style={{ marginLeft: "10px" }} size={15} />
+                </div>
               </div>
             </div>
 
