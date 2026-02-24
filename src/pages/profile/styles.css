@@ -202,3 +202,26 @@
   opacity: 0;
   cursor: pointer;
 }
+
+@media (max-width: 426px) {
+
+  .chat-container {
+    border-radius: 0px;
+  }
+
+  .sidebar-profile {
+    display: none;
+  }
+
+  .content {
+    width: 100%;
+    padding: 20px;
+    height: 100vh;
+    border-radius: 0px;
+  }
+
+  .profile-data {
+    width: 100%;
+  }
+  
+}

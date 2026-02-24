@@ -17,6 +17,20 @@ export default function Profile() {
     const [newName, setNewName] = useState("");
     const [isLoadingPhoto, setIsLoadingPhoto] = useState(false);
 
+    const [isPhone, setIsPhone] = useState(window.innerWidth < 426);
+
+    useEffect(() => {
+        function handleResize() {
+            setIsPhone(window.innerWidth < 426);
+        }
+
+        window.addEventListener("resize", handleResize);
+
+        return () => {
+            window.removeEventListener("resize", handleResize);
+        };
+    }, []);
+
     useEffect(() => {
         const unsubscribe = onAuthStateChanged(auth, async (user) => {
             if (user) {
@@ -81,14 +95,18 @@ export default function Profile() {
 
     return (
         <div className="chat-container">
-            <div className="sidebar">
+            <div className="sidebar-profile">
                 <div className="sidebar-header-profile">
                     <FaArrowLeft size={22} onClick={() => window.history.back()} />
                     <h1 style={{ fontSize: '26px' }} className="title">Perfil</h1>
                 </div>
-
-
             </div>
+            {isPhone && (
+                <div className="sidebar-header-profile">
+                    <FaArrowLeft size={22} onClick={() => window.history.back()} />
+                    <h1 style={{ fontSize: '26px' }} className="title">Perfil</h1>
+                </div>
+            )}
             <div className="content">
                 <h1>Seu Perfil</h1>
 
