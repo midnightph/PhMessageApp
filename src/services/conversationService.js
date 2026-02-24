@@ -234,10 +234,7 @@ export async function createChatWithDev(uid) {
 export async function sendFileMessage(conversationId, file) {
   if (!file) return;
 
-  if (file.size > 10 * 1024 * 1024) {
-    alert("Arquivo muito grande! Máximo permitido: 10MB");
-    return;
-  }
+
 
   const user = auth.currentUser;
 

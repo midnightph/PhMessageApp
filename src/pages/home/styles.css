@@ -29,7 +29,7 @@
   padding: 10px 20px;
   border-radius: 10px;
   border: none;
-  background-color: rgba(255, 255, 255, 0.1);
+  background-color: rgba(141, 0, 0, 0.781);
   color: rgb(201, 201, 201);
   font-weight: 600;
   cursor: pointer;
@@ -137,7 +137,7 @@
 /* Input */
 .message-input {
   display: flex;
-  padding: 15px;
+  padding: 15px 0px;
   gap: 10px;
   border-top: 1px solid rgba(255, 255, 255, 0.1);
 }
@@ -151,7 +151,9 @@
 }
 
 .message-input button {
-  padding: 12px 18px;
+  padding: 12px 12px;
+  display: flex;
+  align-items: center;
   border-radius: 10px;
   border: none;
   background: linear-gradient(90deg, #6366f1, #8b5cf6);
@@ -226,7 +228,7 @@
   justify-content: center;
   background-color: rgba(255, 255, 255, 0.37);
   border-radius: 5px;
-  padding: 5px;
+  padding: 5px 10px;
   cursor: pointer;
 }
 
@@ -285,6 +287,12 @@
     border-radius: 0;
   }
 
+  .sidebar-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
   .chat-header {
     padding: 0
   }
@@ -308,6 +316,7 @@
     display: block;
     padding: 10px;
     margin: 10px;
+    background: rgba(99, 101, 241, 0.692);
   }
 
   .message {
@@ -316,5 +325,15 @@
 
   .no-chat-selected {
     padding: 10px;
+  }
+
+  .spinner {
+    width: 20px;
+    height: 20px;
+  }
+
+  .spinner-image {
+    width: 20px;
+    height: 20px;
   }
 }

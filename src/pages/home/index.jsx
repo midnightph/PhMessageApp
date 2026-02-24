@@ -11,7 +11,7 @@ import {
   listenNewMessages,
   sendFileMessage
 } from "../../services/conversationService";
-import { FaSignOutAlt, FaUserCircle, FaInfoCircle, FaFolderPlus } from "react-icons/fa";
+import { FaSignOutAlt, FaUserCircle, FaInfoCircle, FaFolderPlus, FaArrowRight } from "react-icons/fa";
 import { motion, AnimatePresence } from "framer-motion";
 import { setupPresence } from "../../services/presenceService";
 import { getDatabase, ref, onValue } from "firebase/database";
@@ -258,19 +258,19 @@ function Home() {
           <div className="header">
             <button
               className="logout-button"
-              style={{ backgroundColor: "rgba(255,255,255,0.47)" }}
-              onClick={() => navigate("/profile")}
-            >
-              <FaUserCircle />
-            </button>
-            <button
-              className="logout-button"
               onClick={() => {
                 auth.signOut();
                 navigate("/login");
               }}
             >
               <FaSignOutAlt />
+            </button>
+            <button
+              className="logout-button"
+              style={{ backgroundColor: "rgba(148, 148, 148, 0.73)" }}
+              onClick={() => navigate("/profile")}
+            >
+              <FaUserCircle />
             </button>
           </div>
         </div>
@@ -305,11 +305,13 @@ function Home() {
                       <div>
                         <h3>
                           {
-                            activeConversation.participantsInfo[
-                              activeConversation.participants.find(
-                                (uid) => uid !== user.uid
-                              )
-                            ]?.name
+                            (() => {
+                              const name = activeConversation.participantsInfo[
+                                activeConversation.participants.find((uid) => uid !== user.uid)
+                              ]?.name || "Usuário";
+
+                              return name.length > 20 && isPhone ? name.slice(0, 16) + "..." : name;
+                            })()
                           }
                         </h3>
 
@@ -477,7 +479,7 @@ function Home() {
                     setMessageText("");
                   }}
                 >
-                  Enviar
+                  {isPhone ? <FaArrowRight size={16} /> : "Enviar"}
                 </button>
               </div>
             </>
