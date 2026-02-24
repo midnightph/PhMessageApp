@@ -39,7 +39,8 @@ function Home() {
   const [selectModal, setSelectModal] = useState(false);
   const [email, setEmail] = useState("");
 
-  const [isPhone, setIsPhone] = useState(769);
+  const [isPhone, setIsPhone] = useState(window.innerWidth < 769);
+
 
   useEffect(() => {
     function handleResize() {

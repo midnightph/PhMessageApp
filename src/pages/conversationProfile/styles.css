@@ -1,3 +1,14 @@
+/* Base Styles */
+.chat-container {
+  display: flex;
+  width: 95vw;
+  height: 90vh;
+  background: rgba(255, 255, 255, 0.05);
+  backdrop-filter: blur(20px);
+  border-radius: 20px;
+  overflow: hidden;
+}
+
 .header {
   display: flex;
   align-items: center;
@@ -26,6 +37,8 @@
   border-radius: 16px;
   box-shadow: 0 10px 40px rgba(0, 0, 0, 0.4);
   color: white;
+  overflow-y: auto;
+  max-height: 100%;
 }
 
 .profile-card h2 {
@@ -76,13 +89,14 @@
 }
 
 .chat-area {
-  width: 100%;
+  width: 70%;
   background: #1e293b;
   padding: 20px;
   border-radius: 16px;
   color: white;
   display: flex;
   flex-direction: column;
+  overflow: hidden;
 }
 
 .media-content {
@@ -197,6 +211,12 @@
   background: #334155;
   color: white;
   border-radius: 8px;
+  font-size: 14px;
+  transition: 0.2s ease;
+}
+
+.media-selector button:hover {
+  background: #475569;
 }
 
 .media-selector button.active {
@@ -213,4 +233,240 @@
   object-fit: cover;
   border-radius: 8px;
   cursor: pointer;
+}
+
+/* Loading */
+.loading-container {
+  height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.spinner {
+  width: 45px;
+  height: 45px;
+  border: 4px solid rgba(255, 255, 255, 0.1);
+  border-top: 4px solid #6366f1;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* Media tabs */
+.media-tabs {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+/* Responsive Styles */
+
+/* Tablet breakpoint (max-width: 768px) */
+@media (max-width: 768px) {
+  .chat-container {
+    flex-direction: column;
+    height: 100dvh;
+    width: 100vw;
+    border-radius: 0;
+    overflow-y: auto;
+  }
+
+  .profile-card {
+    width: 100%;
+    padding: 20px;
+    border-radius: 0;
+    max-height: 40vh;
+  }
+
+  .chat-area {
+    width: 100%;
+    border-radius: 0;
+    flex: 1;
+    min-height: 60vh;
+  }
+
+  .media-content {
+    max-height: calc(60vh - 60px);
+  }
+
+  /* Media grid adjustments for tablet */
+  .media-grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+
+  .video-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .media-selector {
+    flex-wrap: wrap;
+  }
+
+  .media-selector button {
+    min-width: calc(50% - 5px);
+    padding: 10px;
+  }
+
+  .header h2 {
+    font-size: 18px;
+  }
+
+  .participant-card img {
+    width: 40px;
+    height: 40px;
+  }
+}
+
+/* Mobile breakpoint (max-width: 426px) */
+@media (max-width: 426px) {
+  .chat-container {
+    flex-direction: column;
+    height: 100dvh;
+    width: 100vw;
+    border-radius: 0;
+    overflow-y: auto;
+    overflow-x: hidden;
+  }
+
+  .profile-card {
+    width: 100%;
+    padding: 15px;
+    border-radius: 0;
+    max-height: 45vh;
+    box-shadow: none;
+  }
+
+  .profile-card h2 {
+    font-size: 18px;
+    margin-bottom: 15px;
+  }
+
+  .header {
+    margin-bottom: 15px;
+  }
+
+  .header h2 {
+    font-size: 16px;
+  }
+
+  .back-button {
+    font-size: 18px;
+  }
+
+  .info-group {
+    margin-bottom: 12px;
+  }
+
+  .info-group label {
+    font-size: 11px;
+  }
+
+  .info-group span {
+    font-size: 13px;
+  }
+
+  .participants h3 {
+    font-size: 14px;
+  }
+
+  .participant-card {
+    padding: 8px;
+    gap: 10px;
+  }
+
+  .participant-card img {
+    width: 35px;
+    height: 35px;
+  }
+
+  .participant-card strong {
+    font-size: 13px;
+  }
+
+  .chat-area {
+    width: 100%;
+    padding: 15px;
+    border-radius: 0;
+    flex: 1;
+    min-height: 55vh;
+  }
+
+  .media-content {
+    margin-top: 10px;
+    max-height: calc(55vh - 50px);
+  }
+
+  .media-selector {
+    gap: 8px;
+    margin-bottom: 15px;
+  }
+
+  .media-selector button {
+    flex: 1;
+    padding: 10px 5px;
+    font-size: 12px;
+    min-width: unset;
+  }
+
+  /* Media grid adjustments for mobile */
+  .media-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 8px;
+  }
+
+  .media-grid .media-item {
+    border-radius: 10px;
+  }
+
+  .video-grid {
+    grid-template-columns: 1fr;
+    gap: 8px;
+  }
+
+  .files-list {
+    gap: 8px;
+  }
+
+  .files-list .media-item {
+    padding: 10px;
+  }
+
+  .files-list .media-item a {
+    font-size: 13px;
+    gap: 6px;
+  }
+
+  /* Ensure content without media fits */
+  .media-content p {
+    font-size: 13px;
+    text-align: center;
+    opacity: 0.7;
+  }
+}
+
+/* Small mobile devices */
+@media (max-width: 320px) {
+  .profile-card {
+    padding: 12px;
+  }
+
+  .chat-area {
+    padding: 12px;
+  }
+
+  .media-grid {
+    grid-template-columns: 1fr 1fr;
+    gap: 6px;
+  }
+
+  .media-selector button {
+    padding: 8px 4px;
+    font-size: 11px;
+  }
 }
