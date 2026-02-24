@@ -142,9 +142,10 @@ src/
 
 ## ⚡ Real-Time Implementation Highlights
 
+### Firestore Real-Time Messaging
 ```javascript
 // Live subscription to user's conversations
-const unsubscribe = onSnapshot(q, (snapshot) => {
+const unsubscribeConversations = onSnapshot(q, (snapshot) => {
   const conversations = snapshot.docs.map(doc => ({
     id: doc.id,
     ...doc.data()
@@ -153,19 +154,23 @@ const unsubscribe = onSnapshot(q, (snapshot) => {
 });
 
 // Real-time messages in a conversation
-const unsubscribe = onSnapshot(q, (snapshot) => {
+const unsubscribeMessages = onSnapshot(q, (snapshot) => {
   const msgs = snapshot.docs.map(doc => ({
     id: doc.id,
     ...doc.data()
   }));
   callback(msgs);
 });
+```
 
-Presence tracking in `presenceService.js`:
+### Presence tracking in `presenceService.js`:
+
+```javascript
 
 const userStatusRef = ref(database, `status/${user.uid}`);
 onDisconnect(userStatusRef).set(isOffline);
-set(userStatusRef, isOnline);
+set(userStatusRef, isOnline); 
+```
 
 ---
 
