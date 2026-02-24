@@ -95,7 +95,7 @@ export default function Profile() {
 
     return (
         <div className="chat-container">
-            <div className="sidebar-profile">
+            <div className={`sidebar ${isPhone ? "sidebar-profile" : ""}`}>
                 <div className="sidebar-header-profile">
                     <FaArrowLeft size={22} onClick={() => window.history.back()} />
                     <h1 style={{ fontSize: '26px' }} className="title">Perfil</h1>
