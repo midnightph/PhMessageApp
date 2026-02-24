@@ -93,7 +93,7 @@ This project demonstrates my ability to:
 
 ```bash
 # Clone the repository
-git clone <your-repo-url>
+git clone https://github.com/midnightph/PhMessageApp.git
 
 # Navigate to project directory
 cd phmessageapp
